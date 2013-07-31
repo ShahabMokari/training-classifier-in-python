@@ -38,7 +38,7 @@ def evaluate_classifier(train_set, test_spam, test_ham):
 
 # load data set into one directory
 enron_corpus = raw_input('Enter the corproa of enron(1, 2, 3, 4, 5): ')
-path = os.path.join('www.aueb.gr/pre/', enron_corpus)
+path = os.path.join('data/enron/pre/', enron_corpus)
 spam_path = os.path.join(path, 'spam')
 ham_path = os.path.join(path, 'ham')
 
