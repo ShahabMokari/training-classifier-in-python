@@ -46,36 +46,40 @@ def evaluate_classifier(train_set, test_spam, test_ham):
 
 
 # fetch corpora from enron emails into list of files
-enron_corpus = raw_input('Enter the corpora of enron(1, 2, 3, 4, 5): ')
-path = os.path.join('data/enron/pre/', enron_corpus)
-spam_path = os.path.join(path, 'spam')
-ham_path = os.path.join(path, 'ham')
+def main():
+        enron_corpus = raw_input('Enter the corpora of enron(1, 2, 3, 4, 5): ')
+        path = os.path.join('data/enron/pre/', enron_corpus)
+        spam_path = os.path.join(path, 'spam')
+        ham_path = os.path.join(path, 'ham')
 
-spam_dir = os.listdir(spam_path)
-ham_dir = os.listdir(ham_path)
+        spam_dir = os.listdir(spam_path)
+        ham_dir = os.listdir(ham_path)
 
-spam_filelist= [os.path.join(spam_path, f) for f in spam_dir]
-ham_filelist = [os.path.join(ham_path, f) for f in ham_dir]
+        spam_filelist= [os.path.join(spam_path, f) for f in spam_dir]
+        ham_filelist = [os.path.join(ham_path, f) for f in ham_dir]
 
-spam_size = len(spam_filelist)
-ham_size = len(ham_filelist)
-
-
-# divide the emails into two parts, train set and test set
-train_spam_filelist = spam_filelist[:int(spam_size*0.3)]
-train_ham_filelist = ham_filelist[:int(spam_size*0.3)]
-
-test_spam_filelist = spam_filelist[int(spam_size*0.3):]
-test_ham_filelist = ham_filelist[int(ham_size*0.3):]
+        spam_size = len(spam_filelist)
+        ham_size = len(ham_filelist)
 
 
-# label train and test data sets
-train_spam = label_features(train_spam_filelist, 'spam')
-train_ham = label_features(train_ham_filelist, 'ham')
-train_set = train_spam + train_ham
-test_spam = label_features(test_spam_filelist, 'spam')
-test_ham = label_features(test_ham_filelist, 'ham')
+        # divide the emails into two parts, train set and test set
+        train_spam_filelist = spam_filelist[:int(spam_size*0.3)]
+        train_ham_filelist = ham_filelist[:int(spam_size*0.3)]
+
+        test_spam_filelist = spam_filelist[int(spam_size*0.3):]
+        test_ham_filelist = ham_filelist[int(ham_size*0.3):]
 
 
-# evaluate the Naive Bayes classifier with data sets
-evaluate_classifier(train_set, test_spam, test_ham)
+        # label train and test data sets
+        train_spam = label_features(train_spam_filelist, 'spam')
+        train_ham = label_features(train_ham_filelist, 'ham')
+        train_set = train_spam + train_ham
+        test_spam = label_features(test_spam_filelist, 'spam')
+        test_ham = label_features(test_ham_filelist, 'ham')
+
+        # evaluate the Naive Bayes classifier with data sets
+        evaluate_classifier(train_set, test_spam, test_ham)
+
+if __name__ == '__main__':
+        main()
+
