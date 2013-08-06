@@ -45,7 +45,11 @@ def evaluate_classifier(train_set, test_spam, test_ham):
 
 # fetch corpora from enron emails into list of files
 def main():
-        enron_corpus = raw_input('Enter the corpora of enron(1, 2, 3, 4, 5): ')
+        corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
+        while corpus_no == 0 or corpus_no > 5:
+                corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
+        enron_corpus = 'enron' + str(corpus_no)
+
         path = os.path.join('data/enron/pre/', enron_corpus)
         spam_path = os.path.join(path, 'spam')
         ham_path = os.path.join(path, 'ham')
