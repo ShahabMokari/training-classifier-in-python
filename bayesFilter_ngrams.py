@@ -7,6 +7,7 @@ from nltk.tokenize import wordpunct_tokenize
 from collections import defaultdict
 import string
 
+
 # create features dictionary
 def indicate_word(message):
 	"""Create a dictionary of entries{word: True} for every unique word in each message.
@@ -17,7 +18,7 @@ def indicate_word(message):
 	return features
 
 # make (feature, label) lists
-def label_features(filelist, label):
+def label_features(filelist, label, ng=1):
 	""" Make (features, label) list, features are the dictionaries { word: True} of each
 	message, label is 'spam' or 'ham'. Thus all the features are listed of each message'
 	"""
@@ -28,7 +29,7 @@ def label_features(filelist, label):
 			for word in nltk.word_tokenize(sent):
 				if word not in string.punctuation:
 					tokens.append(word)
-		ngrams_tokens = nltk.ngrams(tokens, 2)
+		ngrams_tokens = nltk.ngrams(tokens, ng, pad_right=True)
 	        features = indicate_word(ngrams_tokens)
 	        features_labels.append((features, label))
         return features_labels
@@ -47,11 +48,18 @@ def evaluate_classifier(train_set, test_spam, test_ham):
 
 # fetch corpora from enron emails into list of files
 def main():
-        enron_corpus = raw_input('Enter the corpora of enron(1, 2, 3, 4, 5): ')
+        corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
+	while corpus_no == 0 or corpus_no > 5:
+		corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
+	enron_corpus = 'enron' + str(corpus_no) 
+
+	ng = abs(int(raw_input('Enter the degree of n-gram(1-4 is suggested): ')))
+	while ng == 0 or ng > 4:
+                ng = abs(int(raw_input('Please re-enter the degree (1-4): ')))
+	
         path = os.path.join('data/enron/pre/', enron_corpus)
         spam_path = os.path.join(path, 'spam')
         ham_path = os.path.join(path, 'ham')
-
         spam_dir = os.listdir(spam_path)
         ham_dir = os.listdir(ham_path)
 
@@ -71,11 +79,11 @@ def main():
 
 
         # label train and test data sets
-        train_spam = label_features(train_spam_filelist, 'spam')
-        train_ham = label_features(train_ham_filelist, 'ham')
+        train_spam = label_features(train_spam_filelist, 'spam', ng)
+        train_ham = label_features(train_ham_filelist, 'ham', ng)
         train_set = train_spam + train_ham
-        test_spam = label_features(test_spam_filelist, 'spam')
-        test_ham = label_features(test_ham_filelist, 'ham')
+        test_spam = label_features(test_spam_filelist, 'spam', ng)
+        test_ham = label_features(test_ham_filelist, 'ham', ng)
 
         # evaluate the Naive Bayes classifier with data sets
         evaluate_classifier(train_set, test_spam, test_ham)
