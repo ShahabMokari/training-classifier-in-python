@@ -1,4 +1,4 @@
-bayes-spam-filter-using-nltk
+training-bayes-spam-filter
 ============================
 
 ## Background
