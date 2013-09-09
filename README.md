@@ -21,5 +21,5 @@ Useful information can be found http://www.aueb.gr/users/ion/docs/ceas2006_paper
 
 ## Accuracy Of N-gram Testing
 
-
+![Alt text](/image/n-gram_1.png)
 
