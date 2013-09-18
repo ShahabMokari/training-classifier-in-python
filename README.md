@@ -21,5 +21,10 @@ Useful information can be found http://www.aueb.gr/users/ion/docs/ceas2006_paper
 
 ## Accuracy Of N-gram Testing
 
+The data and data chart are listed below
+
 ![Alt text](/image/n-gram_1.png)
+![Alt text](/image/n-gram_2.png)
+
+
 
