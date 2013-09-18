@@ -1,11 +1,12 @@
 import os
 import re
+import string
+from collections import defaultdict
+
 from nltk.corpus import stopwords
 from nltk import NaiveBayesClassifier
 import nltk.classify
 from nltk.tokenize import wordpunct_tokenize
-from collections import defaultdict
-import string
 
 
 # create features dictionary
@@ -72,7 +73,7 @@ def main():
 
         # divide the emails into two parts, train set and test set
         train_spam_filelist = spam_filelist[:int(spam_size*0.3)]
-        train_ham_filelist = ham_filelist[:int(spam_size*0.3)]
+        train_ham_filelist = ham_filelist[:int(ham_size*0.3)]
 
         test_spam_filelist = spam_filelist[int(spam_size*0.3):]
         test_ham_filelist = ham_filelist[int(ham_size*0.3):]
