@@ -47,7 +47,7 @@ def evaluate_classifier(train_set, test_spam, test_ham):
         print classifier.show_most_informative_features(20)
 
 
-# fetch corpora from enron emails into list of files
+# fetch corpora from enron emails, divide them into train and test dataset
 def main():
         corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
 	while corpus_no == 0 or corpus_no > 5:
