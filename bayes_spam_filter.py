@@ -23,13 +23,21 @@ def obtain_filelist():
         spam_filelist= [os.path.join(spam_path, f) for f in spam_dir]
         ham_filelist = [os.path.join(ham_path, f) for f in ham_dir]
 
-	return spam_filelist, ham_filelist
+	spam_word_list = []
+	ham_word_list = []
 
-def create_file2list(filename):
-	file = open(filename).read()
-	file_words = []
-	file_words.extend(nltk.word_tokenize(file))
-	return file_words
+	for i in spam_filelist:
+		file = open(i).read()
+		words = nltk.tokenize.regexp_tokenize(file.lower(), "[\w']+")
+		spam_word_list.append(words)
+	
+	for j in ham_filelist:
+		file = open(j).read()
+		words = nltk.tokenize.regexp_tokenize(file.lower(), "[\w']+")
+		ham_word_list.append(words)
+
+	return spam_word_list, ham_word_list
+
 
 def create_vocabularylist(words_list):
 	vocab = set([])
@@ -89,7 +97,7 @@ def test_NB():
 		train_mat.append(create_doc2vec(vocab, nltk.word_tokenize(file)))
 
 	test_mat = []
-	for file in open([i for i n test_sample]):
+	for file in open([i for i in test_sample]):
 		test_mat.append(create_doc2vec(vocab, nltk.word_tokenize(file)))
 	
 	spam_vec, ham_vec = train_NB(train_mat, train_class)
