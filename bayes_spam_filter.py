@@ -2,6 +2,7 @@
 import nltk
 import os
 from numpy import ones, zeros
+import operator
 
 
 def obtain_filelist():
@@ -39,18 +40,30 @@ def obtain_filelist():
 	return spam_word_list, ham_word_list
 
 
-def create_vocabularylist(words_list):
-	vocab = set([])
-        for list in words_list:
-		vocab = vocab | set(list)
-	return list(vocab)
+def create_vocabularylist(words_list, num=81):
+	freq_dist = {}
+	for list in words_list:
+		for word in list:
+			if word in freq_dist.keys():
+				freq_dist[word] += 1
+			else:
+				freq_dist.setdefault(word, 1)
+	word_freq = sorted(freq_dist.iteritems(), key=operator.itemgetter(1))
+	set_feat = word_freq[-num:-1]
+
+	return set_feat
+
 
 def create_doc2Vec(vocab_list, doc_words):
 	doc_vector = [0]*len(vocab_list)
 	for word in doc_words:
 		if word in vocab_list:
 			doc_vector[vocab_list.index(word)] += 1
+		else:
+			print "Not in the dataset fatures"
+	
 	return doc_vector
+
 
 def train_NB(train_mat, train_class):
 	doc_num_train = len(train_mat)
@@ -70,7 +83,9 @@ def train_NB(train_mat, train_class):
 			ham_denom += sum(train_mat[i])
 	spam_vect = spam_num/spam_denom
 	ham_vect = ham_num/ham_denom
+	
 	return spam_vect, ham_vect
+
 
 def classify_NB(vec2classify, spam_vect, ham_vect):
 	spam_prt = sum(vec2classify * spam_vect)
@@ -80,6 +95,7 @@ def classify_NB(vec2classify, spam_vect, ham_vect):
 		return 1
 	else:
 		return 0
+
 
 def test_NB():
 	spam, ham = obtain_filelist()
