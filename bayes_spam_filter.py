@@ -41,7 +41,8 @@ def obtain_filelist():
 	return spam_word_list, ham_word_list
 
 
-def create_vocabularylist(words_list, num=21):
+def create_vocabularylist(words_list, num=41):
+	'''
 	freq_dist = {}
 	for list in words_list:
 		for word in list:
@@ -49,19 +50,26 @@ def create_vocabularylist(words_list, num=21):
 				freq_dist[word] += 1
 			else:
 				freq_dist.setdefault(word, 1)
+	
 	word_freq = sorted(freq_dist.iteritems(), key=operator.itemgetter(1))
+        '''
+
+        with open('sorted_words_freq.pickle', 'rb') as f:
+		word_freq = cPickle.load(f)
 	set_feat = [word[0] for word in word_freq[-num:-1]]
 
 	return set_feat
 
 
 def create_file2vec(vocab_list, all_file_words, feat_class):
-	doc_vector = [0]*len(vocab_list)
+	all_vector = []*len(all_file_words)
 	for file in all_file_words:
+		doc_vector = [0]*len(vocab_list)
 		for word in file:
 			if word in vocab_list:
 				doc_vector[vocab_list.index(word)] += 1
-	return doc_vector, feat_class
+		all_vector.append(doc_vector)
+	return all_vector, feat_class
 
 def train_NB(train_mat, train_class):
 	doc_num_train = len(train_mat)
@@ -103,18 +111,16 @@ def test_NB():
 
 	test_sample = spam[1000:] + ham[1000:]
 	test_class = [1]*(len(spam)-1000)+[0]*(len(ham) - 1000)
-
-#	vocab_list = create_vocabularylist(spam+ham)
-        with open('sorted_words_freq.pickle', 'rb') as f:
-		vocab_list = cPickle.load(f)
+	
+	vocab_list = create_vocabularylist(spam+ham)
 	tr_mat, tr_class = create_file2vec(vocab_list, train_sample, train_class)
 	ts_mat, ts_class = create_file2vec(vocab_list, test_sample, test_class)
 
-	spam_vec, ham_vec = train_NB(train_mat, train_class)
+	spam_vec, ham_vec = train_NB(tr_mat, tr_class)
 
 	count = 0
 	for i in range(len(ts_mat)):
 		cl_class = classify_NB(ts_mat[i], spam_vec, ham_vec)
 		if cl_class == ts_class[i]:
 			count += 1
-	print 'accuracy is %f' % float(count)/len(ts_mat)
+	print float(count)/len(ts_mat)
