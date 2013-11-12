@@ -1,10 +1,9 @@
 #!/bin/python
-import nltk
 import os
-from numpy import ones, zeros
 import operator
 import cPickle
-
+import nltk
+from numpy import ones, zeros
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
 def obtain_filelist():
