@@ -21,8 +21,8 @@ def obtain_filelist():
         ham_dir = os.listdir(ham_path)
         
 	# get the filelist of the spam and ham datasets
-        spam_filelist= [os.path.join(spam_path, f) for f in spam_dir]
-        ham_filelist = [os.path.join(ham_path, f) for f in ham_dir]
+        spam_filelist= [os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam']
+        ham_filelist = [os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham']
         
 	# tokenize the files into words
 	spam_word_list = []
