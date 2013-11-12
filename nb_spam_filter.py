@@ -2,6 +2,7 @@
 import os
 import operator
 import cPickle
+import random
 import nltk
 from numpy import ones, zeros
 
@@ -112,10 +113,12 @@ def classify_NB(vec2classify, spam_vect, ham_vect):
 # test the accuarcy of the classifer 
 def test_NB():
 	spam, ham = obtain_filelist()
+	random.shuffle(spam)
+	random.shuffle(ham)
 	train_sample = spam[:1000] + ham[:1000]
 	train_class = [1]*1000 + [0]*1000
 
-	test_sample = spam[1000:] + ham[1000:]
+        test_sample = spam[1000:] + ham[1000:]
 	test_class = [1]*(len(spam)-1000)+[0]*(len(ham) - 1000)
 	
 	vocab_list = create_vocabularylist(spam+ham)
