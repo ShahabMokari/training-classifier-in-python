@@ -23,5 +23,4 @@ Numpy  http://www.numpy.org/
 
 4. Training and evaluating Naive Bayes Classifier
 
-## Accuracy Of N-gram Testing
 
