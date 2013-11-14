@@ -31,12 +31,12 @@ def obtain_filelist():
 
 	for i in spam_filelist:
 		file = open(i).read()
-		words = nltk.tokenize.regexp_tokenize(file.lower(), "[\w']+")
+		words = nltk.word_tokenize(file.lower())
 		spam_word_list.append(words)
 	
 	for j in ham_filelist:
 		file = open(j).read()
-		words = nltk.tokenize.regexp_tokenize(file.lower(), "[\w']+")
+		words = nltk.word_tokenize(file.lower())
 		ham_word_list.append(words)
 
 	return spam_word_list, ham_word_list
