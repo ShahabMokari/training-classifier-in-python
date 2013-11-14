@@ -43,7 +43,7 @@ def obtain_filelist():
 
 
 # create vocabulary list of these datasets
-def create_vocabularylist(words_list, num=41):
+def create_vocabularylist(words_list, num=61):
 	'''
 	freq_dist = {}
 	for list in words_list:
