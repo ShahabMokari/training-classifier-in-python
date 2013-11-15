@@ -5,6 +5,7 @@ import cPickle
 import random
 import nltk
 from numpy import ones, zeros
+from nltk.corpus import stopwords
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
 def obtain_filelist():
@@ -28,7 +29,7 @@ def obtain_filelist():
 	# tokenize the files into words
 	spam_word_list = []
 	ham_word_list = []
-
+        
 	for i in spam_filelist:
 		file = open(i).read()
 		words = nltk.word_tokenize(file.lower())
@@ -43,7 +44,7 @@ def obtain_filelist():
 
 
 # create vocabulary list of these datasets
-def create_vocabularylist(words_list, num=61):
+def create_vocabularylist(words_list, num=201):
 	'''
 	freq_dist = {}
 	for list in words_list:
@@ -54,13 +55,17 @@ def create_vocabularylist(words_list, num=61):
 				freq_dist.setdefault(word, 1)
 	
 	word_freq = sorted(freq_dist.iteritems(), key=operator.itemgetter(1))
-        '''
+        
         # load cPickle file of word freq in order to save time
-        with open('sorted_words_freq.pickle', 'rb') as f:
+        with open('sorted_words_freq.pkl', 'rb') as f:
 		word_freq = cPickle.load(f)
-	
-	# choose the first 'num' most common words in word freq as feature space
-	set_feat = [word[0] for word in word_freq[-num:-1]]
+	'''
+	all_files = open('all_words', 'r').read()
+	stop_words = stopwords.words('english')
+	words = nltk.words_tokenize(all_files.lower())
+	clean_words= [w for w in words if (w not in stop_words) and (len(w) > 1)]
+	word_freq = nltk.probability.FreqDist(clean_words)
+	set_feat = [ i for i in word_freq if word_freq[i] > num ]
 
 	return set_feat
 
