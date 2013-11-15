@@ -6,6 +6,8 @@ import random
 import nltk
 from numpy import ones, zeros
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
 def obtain_filelist():
@@ -29,18 +31,22 @@ def obtain_filelist():
 	# tokenize the files into words
 	spam_word_list = []
 	ham_word_list = []
+
+	all_words = []
         
 	for i in spam_filelist:
 		file = open(i).read()
 		words = nltk.word_tokenize(file.lower())
 		spam_word_list.append(words)
-	
+		all_words.extend(words)
+
 	for j in ham_filelist:
 		file = open(j).read()
 		words = nltk.word_tokenize(file.lower())
 		ham_word_list.append(words)
+		all_words.extend(words)
 
-	return spam_word_list, ham_word_list
+	return spam_word_list, ham_word_list, all_words
 
 
 # create vocabulary list of these datasets
@@ -60,14 +66,13 @@ def create_vocabularylist(words_list, num=201):
         with open('sorted_words_freq.pkl', 'rb') as f:
 		word_freq = cPickle.load(f)
 	'''
-	all_files = open('all_words', 'r').read()
+        stemmer = PorterStemmer()        
 	stop_words = stopwords.words('english')
-	words = nltk.words_tokenize(all_files.lower())
-	clean_words= [w for w in words if (w not in stop_words) and (len(w) > 1)]
+	clean_words= [stemmer.stem(w) for w in words_list if (w not in stop_words) and (len(w) > 1) and (len(w) <= 20)]
 	word_freq = nltk.probability.FreqDist(clean_words)
-	set_feat = [ i for i in word_freq if word_freq[i] > num ]
+	set_feat = [ i for i in word_freq if word_freq[i] > 1]
 
-	return set_feat
+	return set_feat, word_freq
 
 
 # create vector for each file in these datasets
