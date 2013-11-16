@@ -93,11 +93,15 @@ def create_file2vec(vocab_list, all_file_words, feat_class):
 def train_NB(train_mat, train_class):
 	doc_num_train = len(train_mat)
 	num_words = len(train_mat[0])
-	spam_num = zeros(num_words)
-	ham_num = zeros(num_words)
+#	spam_num = zeros(num_words)
+#	ham_num = zeros(num_words)
 
-	spam_denom = 0
-	ham_denom = 0
+        # creating a 1 x num_words matrix using numpy 
+	spam_num = ones(num_words)
+	ham_num = ones(num_words)
+
+	spam_denom = 2
+	ham_denom = 2
 
 	for i in range(doc_num_train):
 		if train_class[i] == 1:
