@@ -128,14 +128,19 @@ def classify_NB(vec2classify, spam_vect, ham_vect):
 
 # test the accuarcy of the classifer 
 def test_NB():
+	ratio = 1.0/3
 	spam, ham, all_words = obtain_filelist()
 	random.shuffle(spam)
 	random.shuffle(ham)
-	train_sample = spam[:1000] + ham[:1000]
-	train_class = [1]*1000 + [0]*1000
 
-        test_sample = spam[1000:] + ham[1000:]
-	test_class = [1]*(len(spam)-1000)+[0]*(len(ham) - 1000)
+        train_spam_div = int(ratio*len(spam))
+	train_ham_div = int(ratio*len(ham))
+
+	train_sample = spam[:train_spam_div] + ham[:train_ham_div]
+	train_class = [1]*train_spam_div + [0]*train_ham_div
+
+        test_sample = spam[train_spam_div:] + ham[train_ham_div:]
+	test_class = [1]*(len(spam)-train_spam_div)+[0]*(len(ham) - train_ham_div)
 	
 	vocab_list = create_vocabularylist(all_words)
 	tr_mat, tr_class = create_file2vec(vocab_list, train_sample, train_class)
