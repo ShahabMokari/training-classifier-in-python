@@ -80,9 +80,11 @@ def create_file2vec(vocab_list, all_file_words, feat_class):
 	all_vector = []*len(all_file_words)
 	for file in all_file_words:
 		doc_vector = [0]*len(vocab_list)
+		stemmer = PorterStemmer()
 		for word in file:
-			if word in vocab_list:
-				doc_vector[vocab_list.index(word)] += 1
+			stem_word = stemmer.stem(word)
+			if stem_word in vocab_list:
+				doc_vector[vocab_list.index(stem_word)] += 1
 		all_vector.append(doc_vector)
 	return all_vector, feat_class
 
@@ -122,7 +124,7 @@ def classify_NB(vec2classify, spam_vect, ham_vect):
 
 # test the accuarcy of the classifer 
 def test_NB():
-	spam, ham = obtain_filelist()
+	spam, ham, all_words = obtain_filelist()
 	random.shuffle(spam)
 	random.shuffle(ham)
 	train_sample = spam[:1000] + ham[:1000]
@@ -131,7 +133,7 @@ def test_NB():
         test_sample = spam[1000:] + ham[1000:]
 	test_class = [1]*(len(spam)-1000)+[0]*(len(ham) - 1000)
 	
-	vocab_list = create_vocabularylist(spam+ham)
+	vocab_list = create_vocabularylist(all_words)
 	tr_mat, tr_class = create_file2vec(vocab_list, train_sample, train_class)
 	ts_mat, ts_class = create_file2vec(vocab_list, test_sample, test_class)
 
