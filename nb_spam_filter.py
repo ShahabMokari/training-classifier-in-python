@@ -1,6 +1,6 @@
 #!/bin/python
 import os
-import operator
+from operator import itemgetter
 import cPickle
 import random
 import nltk
@@ -50,7 +50,7 @@ def obtain_filelist():
 
 
 # create vocabulary list of these datasets
-def create_vocabularylist(words_list, num=201):
+def create_vocabularylist(words_list, num=1):
 	'''
 	freq_dist = {}
 	for list in words_list:
@@ -70,7 +70,7 @@ def create_vocabularylist(words_list, num=201):
 	stop_words = stopwords.words('english')
 	clean_words= [stemmer.stem(w) for w in words_list if (w not in stop_words) and (len(w) > 1) and (len(w) <= 20)]
 	word_freq = nltk.probability.FreqDist(clean_words)
-	set_feat = [ i for i in word_freq if word_freq[i] > 1]
+	set_feat = [ i for i in word_freq if word_freq[i] > num]
 
 	return set_feat, word_freq
 
@@ -126,9 +126,10 @@ def classify_NB(vec2classify, spam_vect, ham_vect):
 	else:
 		return 0
 
+	
 # test the accuarcy of the classifer 
 def test_NB():
-	ratio = 1.0/3
+	ratio = 2.0/3
 	spam, ham, all_words = obtain_filelist()
 	random.shuffle(spam)
 	random.shuffle(ham)
@@ -142,11 +143,12 @@ def test_NB():
         test_sample = spam[train_spam_div:] + ham[train_ham_div:]
 	test_class = [1]*(len(spam)-train_spam_div)+[0]*(len(ham) - train_ham_div)
 	
-	vocab_list = create_vocabularylist(all_words)
+	vocab_list, words_freq = create_vocabularylist(all_words)
 	tr_mat, tr_class = create_file2vec(vocab_list, train_sample, train_class)
 	ts_mat, ts_class = create_file2vec(vocab_list, test_sample, test_class)
 
 	spam_vec, ham_vec = train_NB(tr_mat, tr_class)
+        
 
 	count = 0
 	for i in range(len(ts_mat)):
@@ -154,3 +156,9 @@ def test_NB():
 		if cl_class == ts_class[i]:
 			count += 1
 	print float(count)/len(ts_mat)
+
+	words_ratio = {}
+	for i in range(len(vocab_list)):
+		words_ratio[str(vocab_list[i])] = int(spam_vec[i]/ham_vec[i])
+	
+	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)[:10]
