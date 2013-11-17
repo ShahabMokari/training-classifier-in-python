@@ -31,20 +31,34 @@ def obtain_filelist():
 	# tokenize the files into words
 	spam_word_list = []
 	ham_word_list = []
-
 	all_words = []
         
-	for i in spam_filelist:
-		file = open(i).read()
-		words = nltk.word_tokenize(file.lower())
-		spam_word_list.append(words)
-		all_words.extend(words)
+        try:
+		spam_word_list = cPickle.load(open('spam_word_list.pkl', 'r'))
+		ham_word_list = cPickle.load(open('ham_word_list.pkl', 'r'))
+		all_words = cPickle.load(open('all_words.pkl', 'r'))
+	except:
 
-	for j in ham_filelist:
-		file = open(j).read()
-		words = nltk.word_tokenize(file.lower())
-		ham_word_list.append(words)
-		all_words.extend(words)
+        	for i in spam_filelist:
+        		file = open(i).read()
+        		words = nltk.word_tokenize(file.lower())
+        		spam_word_list.append(words)
+        		all_words.extend(words)
+        
+                with open('spam_word_list.pkl', 'wb') as f:
+		        cPickle.dump(spam_word_list, f)
+        	
+		for j in ham_filelist:
+        		file = open(j).read()
+        		words = nltk.word_tokenize(file.lower())
+        		ham_word_list.append(words)
+        		all_words.extend(words)
+
+		with open('ham_word_list.pkl', 'wb') as f:
+			cPickle.dump(spam_word_list, f)
+
+	        with open('all_words.pkl', 'wb') as f:
+			cPickle.dump(all_words, f)
 
 	return spam_word_list, ham_word_list, all_words
 
@@ -58,6 +72,7 @@ def create_vocabularylist(words_list, num=1):
 			if word in freq_dist.keys():
 				freq_dist[word] += 1
 			else:
+
 				freq_dist.setdefault(word, 1)
 	
 	word_freq = sorted(freq_dist.iteritems(), key=operator.itemgetter(1))
@@ -78,7 +93,8 @@ def create_vocabularylist(words_list, num=1):
 
 # create vector for each file in these datasets
 def create_file2vec(vocab_list, all_file_words, feat_class):
-	all_vector = []*len(all_file_words)
+	all_vector = [[]]*len(all_file_words)
+	cnt = 0
 	for file in all_file_words:
 		doc_vector = [0]*len(vocab_list)
 		stemmer = PorterStemmer()
@@ -86,7 +102,9 @@ def create_file2vec(vocab_list, all_file_words, feat_class):
 			stem_word = stemmer.stem(word)
 			if stem_word in vocab_list:
 				doc_vector[vocab_list.index(stem_word)] += 1
-		all_vector.append(doc_vector)
+		all_vector[cnt] = doc_vector
+		cnt += 1
+
 	return all_vector, feat_class
 
 
@@ -116,6 +134,7 @@ def train_NB(train_mat, train_class):
 	ham_vect = ham_num/ham_denom
 	
 	return spam_vect, ham_vect
+
 
 # using trained classifier to classify the test sample
 def classify_NB(vec2classify, spam_vect, ham_vect):
