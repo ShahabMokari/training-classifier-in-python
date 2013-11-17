@@ -15,12 +15,18 @@ Numpy  http://www.numpy.org/
 
 ## Project Details
 
-1. Load enron email corpus into lists
+1. Load enron emails corpus into memory
 
-2. Extracte word features from the emails
+2. Tokenize files into word, and store them into lists
 
-3. Making (features, label) list
+3. Feature selection based on the words from corpus
 
-4. Training and evaluating Naive Bayes Classifier
+3. Feature extracte 
+
+4. Training the NB classifier
+
+5. Evaluating the classifier 
+
+6. Checing result and imporve it 
 
 
