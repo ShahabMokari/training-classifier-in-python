@@ -15,7 +15,7 @@ def obtain_filelist():
         corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
 	while corpus_no == 0 or corpus_no > 5:
 		corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
-	enron_corpus = 'enron' + str(corpus_no) 
+	enron_corpus = 'enron' + enron_corpus 
         
 	# join the path and file name together
         path = os.path.join('data/enron/pre/', enron_corpus)
@@ -34,9 +34,9 @@ def obtain_filelist():
 	all_words = []
         
         try:
-		spam_word_list = cPickle.load(open('spam_word_list.pkl', 'r'))
-		ham_word_list = cPickle.load(open('ham_word_list.pkl', 'r'))
-		all_words = cPickle.load(open('all_words.pkl', 'r'))
+		spam_word_list = cPickle.load(open(enron_corpus+'/spam_word_list.pkl', 'r'))
+		ham_word_list = cPickle.load(open(enron_corpus+'/ham_word_list.pkl', 'r'))
+		all_words = cPickle.load(open(enron_corpus+'/all_words.pkl', 'r'))
 	except:
 
         	for i in spam_filelist:
@@ -45,7 +45,7 @@ def obtain_filelist():
         		spam_word_list.append(words)
         		all_words.extend(words)
         
-                with open('spam_word_list.pkl', 'wb') as f:
+                with open(enron_corpus+'/spam_word_list.pkl', 'wb') as f:
 		        cPickle.dump(spam_word_list, f)
         	
 		for j in ham_filelist:
@@ -54,10 +54,10 @@ def obtain_filelist():
         		ham_word_list.append(words)
         		all_words.extend(words)
 
-		with open('ham_word_list.pkl', 'wb') as f:
+		with open(enron_corpus+'/ham_word_list.pkl', 'wb') as f:
 			cPickle.dump(spam_word_list, f)
 
-	        with open('all_words.pkl', 'wb') as f:
+	        with open(enron_corpus+'/all_words.pkl', 'wb') as f:
 			cPickle.dump(all_words, f)
 
 	return spam_word_list, ham_word_list, all_words
@@ -182,3 +182,7 @@ def test_NB():
 		words_ratio[str(vocab_list[i])] = int(spam_vec[i]/ham_vec[i])
 	
 	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)[:10]
+
+if __name__ == '__main__':
+	pass
+
