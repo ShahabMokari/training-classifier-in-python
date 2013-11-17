@@ -1,8 +1,8 @@
 #!/bin/python
 import os
-from operator import itemgetter
 import cPickle
 import random
+from collections import Counter
 import nltk
 from numpy import ones, zeros
 from nltk.corpus import stopwords
@@ -69,8 +69,9 @@ def create_vocabularylist(words_list, num=1):
         stemmer = PorterStemmer()        
 	stop_words = stopwords.words('english')
 	clean_words= [stemmer.stem(w) for w in words_list if (w not in stop_words) and (len(w) > 1) and (len(w) <= 20)]
-	word_freq = nltk.probability.FreqDist(clean_words)
-	set_feat = [ i for i in word_freq if word_freq[i] > num]
+#	word_freq = nltk.probability.FreqDist(clean_words)
+        word_freq = Counter(clean_words)
+ 	set_feat = [ i for i in word_freq if word_freq[i] > num]
 
 	return set_feat, word_freq
 
