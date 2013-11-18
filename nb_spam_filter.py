@@ -3,12 +3,15 @@ import os
 import cPickle
 import random
 from collections import Counter
+import cProfile
+from time import time
+
 import nltk
 from numpy import ones, zeros
 from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
+
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
 def obtain_filelist():
@@ -162,6 +165,7 @@ def classify_NB(vec2classify, spam_vect, ham_vect):
 	
 # test the accuarcy of the classifer 
 def test_NB():
+	start = time()
 	ratio = 2.0/3
 	spam, ham, all_words = obtain_filelist()
 	random.shuffle(spam)
@@ -193,9 +197,10 @@ def test_NB():
 	words_ratio = {}
 	for i in range(len(list(set_common))):
 		words_ratio[list(set_common)[i]] = int(spam_vec[i]/ham_vec[i])
-	
+	end = time() - start
 	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)[:10]
+	print end
 
 if __name__ == '__main__':
-	pass
+	cProfile.run('test_NB()', 'log_file.pyprof')
 
