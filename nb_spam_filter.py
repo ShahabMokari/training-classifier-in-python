@@ -1,4 +1,6 @@
-#!/bin/python
+#!/bin/env pypy
+
+
 import os
 import cPickle
 import random
@@ -113,11 +115,9 @@ def create_file2vec(vocab_list, all_file_words, feat_class):
 	cnt = 0
 	for file in all_file_words:
 		doc_vector = [0]*len(vocab_list)
-		stemmer = PorterStemmer()
 		for word in file:
-			stem_word = stemmer.stem(word)
-			if stem_word in vocab_list:
-				doc_vector[vocab_list.index(stem_word)] += 1
+			if word in vocab_list:
+				doc_vector[vocab_list.index(word)] += 1
 		all_vector[cnt] = doc_vector
 		cnt += 1
 
@@ -198,7 +198,7 @@ def test_NB():
 	for i in range(len(list(set_common))):
 		words_ratio[list(set_common)[i]] = int(spam_vec[i]/ham_vec[i])
 	end = time() - start
-	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)[:10]
+	print sorted(words_ratio.iteritems(), key=lambda words_ratio: words_ratio[1], reverse=True)[:10]
 	print end
 
 if __name__ == '__main__':
