@@ -45,7 +45,7 @@ def obtain_filelist():
         		spam_word_list.append(words)
         		all_words.extend(words)
         
-                with open(enron_corpus+'_spam_word_list.pkl', 'wb') as f:
+                with open(enron_corpus+'_spam_word_list.pkl', 'w') as f:
 		        cPickle.dump(spam_word_list, f)
         	
 		for j in ham_filelist:
@@ -54,17 +54,17 @@ def obtain_filelist():
         		ham_word_list.append(words)
         		all_words.extend(words)
 
-		with open(enron_corpus+'_ham_word_list.pkl', 'wb') as f:
-			cPickle.dump(spam_word_list, f)
+		with open(enron_corpus+'_ham_word_list.pkl', 'w') as f:
+			cPickle.dump(ham_word_list, f)
 
-	        with open(enron_corpus+'_all_words.pkl', 'wb') as f:
+	        with open(enron_corpus+'_all_words.pkl', 'w') as f:
 			cPickle.dump(all_words, f)
 
 	return spam_word_list, ham_word_list, all_words
 
 
 # create vocabulary list of these datasets
-def create_vocabularylist(words_list, num=1):
+def create_vocabularylist(words_list, num=501, dataset_no='enron1'):
 	'''
 	freq_dist = {}
 	for list in words_list:
@@ -81,6 +81,21 @@ def create_vocabularylist(words_list, num=1):
         with open('sorted_words_freq.pkl', 'rb') as f:
 		word_freq = cPickle.load(f)
 	'''
+	with open(dataset_no+'_spam_word_list.pkl', 'r') as f:
+		spam_word_list = cPickle.load(f)
+	
+	with open(dataset_no+'_ham_word_list.pkl', 'r') as f:
+		ham_word_list = cPickle.load(f)
+
+	spam_dict = set()
+	for list in spam_word_list:
+		spam_dict = spam_dict | set(list)
+
+	ham_dict = set()
+	for list in spam_word_list:
+		ham_word_list = ham_word_list | set(list)
+	
+	
         stemmer = PorterStemmer()        
 	stop_words = stopwords.words('english')
 	clean_words= [stemmer.stem(w) for w in words_list if (w not in stop_words) and (len(w) > 1) and (len(w) <= 20)]
