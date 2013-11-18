@@ -7,7 +7,8 @@ import nltk
 from numpy import ones, zeros
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
-
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem import WordNetLemmatizer
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
 def obtain_filelist():
@@ -38,10 +39,13 @@ def obtain_filelist():
 		ham_word_list = cPickle.load(open(enron_corpus+'_ham_word_list.pkl', 'r'))
 		all_words = cPickle.load(open(enron_corpus+'_all_words.pkl', 'r'))
 	except:
+		tokenizer = RegexpTokenizer("[\w']+")
+		english_stops = set(stopwords.words('english'))
+		lemmatizer = WordNetLemmatizer()
 
         	for i in spam_filelist:
         		file = open(i).read()
-        		words = nltk.word_tokenize(file.lower())
+        		words = [lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
         		spam_word_list.append(words)
         		all_words.extend(words)
         
@@ -50,7 +54,7 @@ def obtain_filelist():
         	
 		for j in ham_filelist:
         		file = open(j).read()
-        		words = nltk.word_tokenize(file.lower())
+        		words = [ lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
         		ham_word_list.append(words)
         		all_words.extend(words)
 
@@ -64,46 +68,40 @@ def obtain_filelist():
 
 
 # create vocabulary list of these datasets
-def create_vocabularylist(words_list, num=501, dataset_no='enron1'):
-	'''
-	freq_dist = {}
-	for list in words_list:
-		for word in list:
-			if word in freq_dist.keys():
-				freq_dist[word] += 1
-			else:
-
-				freq_dist.setdefault(word, 1)
+def create_vocabularylist(words_list, num=1, dataset_no='enron1'):
 	
-	word_freq = sorted(freq_dist.iteritems(), key=operator.itemgetter(1))
-        
-        # load cPickle file of word freq in order to save time
-        with open('sorted_words_freq.pkl', 'rb') as f:
-		word_freq = cPickle.load(f)
-	'''
 	with open(dataset_no+'_spam_word_list.pkl', 'r') as f:
 		spam_word_list = cPickle.load(f)
 	
 	with open(dataset_no+'_ham_word_list.pkl', 'r') as f:
 		ham_word_list = cPickle.load(f)
 
-	spam_dict = set()
+	spam_set = set()
+	spam_list = []
 	for list in spam_word_list:
-		spam_dict = spam_dict | set(list)
+		spam_list.extend(list)
+		spam_set = spam_set | set(list)
 
-	ham_dict = set()
-	for list in spam_word_list:
-		ham_word_list = ham_word_list | set(list)
+	ham_set = set()
+	ham_list = []
+	for list in ham_word_list:
+		ham_list.extend(list)
+		ham_set = ham_set | set(list)
+        
+	spam_dict = Counter(spam_list)
+	ham_dict = Counter(ham_list)
+
+	set_common = ham_set & spam_set
 	
-	
-        stemmer = PorterStemmer()        
-	stop_words = stopwords.words('english')
-	clean_words= [stemmer.stem(w) for w in words_list if (w not in stop_words) and (len(w) > 1) and (len(w) <= 20)]
+#       stemmer = PorterStemmer()        
+#	clean_words= [stemmer.stem(w) for w in words_list if (len(w) > 1) and (len(w) <= 20)]
 #	word_freq = nltk.probability.FreqDist(clean_words)
+        
+	clean_words = [ w for w in words_list if (len(w) > 1) and (len(w) <= 20)]
         word_freq = Counter(clean_words)
  	set_feat = [ i for i in word_freq if word_freq[i] > num]
 
-	return set_feat, word_freq
+	return set_feat, word_freq, spam_dict, ham_dict, set_common
 
 
 # create vector for each file in these datasets
@@ -178,9 +176,9 @@ def test_NB():
         test_sample = spam[train_spam_div:] + ham[train_ham_div:]
 	test_class = [1]*(len(spam)-train_spam_div)+[0]*(len(ham) - train_ham_div)
 	
-	vocab_list, words_freq = create_vocabularylist(all_words)
-	tr_mat, tr_class = create_file2vec(vocab_list, train_sample, train_class)
-	ts_mat, ts_class = create_file2vec(vocab_list, test_sample, test_class)
+	vocab_list, words_freq, spam_dict, ham_dict, set_common = create_vocabularylist(all_words)
+	tr_mat, tr_class = create_file2vec(list(set_common), train_sample, train_class)
+	ts_mat, ts_class = create_file2vec(list(set_common), test_sample, test_class)
 
 	spam_vec, ham_vec = train_NB(tr_mat, tr_class)
         
@@ -193,8 +191,8 @@ def test_NB():
 	print float(count)/len(ts_mat)
 
 	words_ratio = {}
-	for i in range(len(vocab_list)):
-		words_ratio[str(vocab_list[i])] = int(spam_vec[i]/ham_vec[i])
+	for i in range(len(list(set_common))):
+		words_ratio[list(set_common)[i]] = int(spam_vec[i]/ham_vec[i])
 	
 	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)[:10]
 
