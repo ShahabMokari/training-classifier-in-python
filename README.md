@@ -28,6 +28,7 @@ Numpy  http://www.numpy.org/
 5. Evaluating the classifier 
 
 6. Checing result and imporve it using three ways
+
   1). more datasets
   2). reduce demonsionality
   3). add proi probability
