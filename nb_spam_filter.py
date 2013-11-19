@@ -4,11 +4,14 @@
 import os
 import cPickle
 import random
+import re
 from collections import Counter
 import cProfile
 from time import time
+from operator import itemgetter
 
-from numpy import ones, zeros
+from numpy import ones
+from numpy import log
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
@@ -36,71 +39,29 @@ def obtain_filelist():
 	# tokenize the files into words
 	spam_word_list = []
 	ham_word_list = []
-	all_words = []
         
-#       try:
-#		spam_word_list = cPickle.load(open(enron_corpus+'_spam_word_list.pkl', 'r'))
-#		ham_word_list = cPickle.load(open(enron_corpus+'_ham_word_list.pkl', 'r'))
-#		all_words = cPickle.load(open(enron_corpus+'_all_words.pkl', 'r'))
-#	except:
 	tokenizer = RegexpTokenizer("[\w']+")
 	english_stops = set(stopwords.words('english'))
 	lemmatizer = WordNetLemmatizer()
 
 	for i in spam_filelist:
 		file = open(i).read()
+#		file = re.sub(r"\d+", " ", open(i).read())
 		words = [lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
 		spam_word_list.append(words)
-#		all_words.extend(words)
-#
-#        with open(enron_corpus+'_spam_word_list.pkl', 'w') as f:
-#	        cPickle.dump(spam_word_list, f)
-#	
+	
 	for j in ham_filelist:
 		file = open(j).read()
-		words = [ lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
+#		file = re.sub(r"\d+", " ", open(j).read())
+		words = [lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
 		ham_word_list.append(words)
-#		all_words.extend(words)
-#
-#	with open(enron_corpus+'_ham_word_list.pkl', 'w') as f:
-#		cPickle.dump(ham_word_list, f)
-#
-#        with open(enron_corpus+'_all_words.pkl', 'w') as f:
-#		cPickle.dump(all_words, f)
-#
+	
 	return spam_word_list, ham_word_list
 
 
 # create vocabulary list of these datasets
 def create_vocabularylist(train_set):
 	
-#	with open(dataset_no+'_spam_word_list.pkl', 'r') as f:
-#		spam_word_list = cPickle.load(f)
-#	
-#	with open(dataset_no+'_ham_word_list.pkl', 'r') as f:
-#		ham_word_list = cPickle.load(f)
-
-#	spam_set = set()
-#	spam_list = []
-#	for list in spam_word_list:
-#		spam_list.extend(list)
-#		spam_set = spam_set | set(list)
-#
-#	ham_set = set()
-#	ham_list = []
-#	for list in ham_word_list:
-#		ham_list.extend(list)
-#		ham_set = ham_set | set(list)
-#        
-#	spam_dict = Counter(spam_list)
-#	ham_dict = Counter(ham_list)
-#
-#	set_common = ham_set & spam_set
-#	
-#       stemmer = PorterStemmer()        
-#	clean_words= [stemmer.stem(w) for w in words_list if (len(w) > 1) and (len(w) <= 20)]
-#	word_freq = nltk.probability.FreqDist(clean_words)
-        
 	spam_list = []
 	ham_list = []
 	for i in train_set:
@@ -108,15 +69,12 @@ def create_vocabularylist(train_set):
 			spam_list.extend(i[0])
 		else:
 			ham_list.extend(i[0])
-	vocab = set(spam_list) | set(ham_list)
-
+        word_freq = Counter(spam_list+ham_list)
 	spam_dict = Counter(spam_list)
 	ham_dict = Counter(ham_list)
-#	clean_words = [ w for w in words_list if (len(w) > 1) and (len(w) <= 20)]
-#       word_freq = Counter(clean_words)
-# 	set_feat = [ i for i in word_freq if word_freq[i] > num]
+ 	vocab = [ i for i in word_freq if word_freq[i] > 10]
 
-	return spam_dict, ham_dict, list(vocab)
+	return spam_dict, ham_dict, vocab
 
 
 # create vector for each file in these datasets
@@ -136,14 +94,9 @@ def create_file2vec(vocab_list, sample):
 
 # train naive bayes classifier using train matrix and train class labels
 def train_NB(train_vec, train_class):
-#	doc_num_train = len(train_set)
-#	num_words = len(train_mat[0])
-#	spam_num = zeros(num_words)
-#	ham_num = zeros(num_words)
 
         # creating a 1 x num_words matrix using numpy 
 	spam_num = ham_num = ones(len(train_vec[0]))
-
 	spam_denom = ham_denom = 2
 
 	for i in range(len(train_class)):
@@ -154,10 +107,10 @@ def train_NB(train_vec, train_class):
 			ham_num += train_vec[i]
 			ham_denom += sum(train_vec[i])
 	
-	spam_lh = spam_num/spam_denom
-	ham_lh = ham_num/ham_denom
+	spam_lh = log(spam_num/spam_denom)
+	ham_lh = log(ham_num/ham_denom)
 	
-	return spam_p, ham_p
+	return spam_lh, ham_lh
 
 
 # using trained classifier to classify the test sample
@@ -182,13 +135,8 @@ def test_NB():
         train_spam_div = int(ratio*len(spam))
 	train_ham_div = int(ratio*len(ham))
 
-	train_set = [(spam[i], 1) for i in xrange(train_spam_div)] + [(ham[j], 0) for j in xrange(train_ham_div)]
-        test_set = [(spam[train_spam_div+i], 1) for i in xrange(len(spam) - train_spam_div)] + [(ham[train_ham_div+j], 0) for j in xrange(len(ham)-train_ham_div)]  
-#	train_sample = spam[:train_spam_div] + ham[:train_ham_div]
-#	train_class = [1]*train_spam_div + [0]*train_ham_div
-
-#       test_sample = spam[train_spam_div:] + ham[train_ham_div:]
-#	test_class = [1]*(len(spam)-train_spam_div)+[0]*(len(ham) - train_ham_div)
+	train_set = [(i, 1) for i in spam[:train_spam_div]] + [(j, 0) for j in ham[:train_ham_div]]
+	test_set = [(i, 1) for i in spam[train_spam_div:]] + [(j, 0) for j in ham[train_ham_div:]]
 	
 	spam_dict, ham_dict, vocab_list = create_vocabularylist(train_set)
 	train_vec, train_class = create_file2vec(vocab_list, train_set)
@@ -197,16 +145,16 @@ def test_NB():
 	spam_vec, ham_vec = train_NB(train_vec, train_class)
 
 	count = 0
-	for i in range(len(test_vec)):
+	for i in range(len(test_class)):
 		cl_class = classify_NB(test_vec[i], spam_vec, ham_vec)
-		if cl_class == train_class[i]:
+		if cl_class == test_class[i]:
 			count += 1
-	print float(count)/len(test_vec)
+	print float(count)/len(test_class)
 
 	words_ratio = {}
 	for i in range(len(vocab_list)):
 		words_ratio[vocab_list[i]] = int(spam_vec[i]/ham_vec[i])
-	print sorted(words_ratio.iteritems(), key=lambda words_ratio: words_ratio[1], reverse=True)[:10]
+	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)
 
 	print time() - start
 
