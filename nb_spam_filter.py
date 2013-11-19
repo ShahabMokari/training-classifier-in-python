@@ -72,7 +72,7 @@ def create_vocabularylist(train_set):
         word_freq = Counter(spam_list+ham_list)
 	spam_dict = Counter(spam_list)
 	ham_dict = Counter(ham_list)
- 	vocab = [ i for i in word_freq if word_freq[i] > 100]
+ 	vocab = [ i for i in word_freq if word_freq[i] > 10]
 
 	return spam_dict, ham_dict, vocab
 
