@@ -4,11 +4,12 @@
 import os
 import cPickle
 import random
+import re
 from collections import Counter
 import cProfile
 from time import time
 
-from numpy import ones, zeros
+from numpy import ones
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
@@ -48,8 +49,8 @@ def obtain_filelist():
 	lemmatizer = WordNetLemmatizer()
 
 	for i in spam_filelist:
-		file = open(i).read()
-		words = [lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
+		file = re.sub(r"\d+", " ", open(i).read())
+		words = (lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops)
 		spam_word_list.append(words)
 #		all_words.extend(words)
 #
@@ -57,8 +58,8 @@ def obtain_filelist():
 #	        cPickle.dump(spam_word_list, f)
 #	
 	for j in ham_filelist:
-		file = open(j).read()
-		words = [ lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
+		file = re.sub(r"\d+", " ", open(j).read())
+		words = (lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops)
 		ham_word_list.append(words)
 #		all_words.extend(words)
 #
@@ -108,15 +109,15 @@ def create_vocabularylist(train_set):
 			spam_list.extend(i[0])
 		else:
 			ham_list.extend(i[0])
-	vocab = set(spam_list) | set(ham_list)
-
+#	vocab = set(spam_list) | set(ham_list)
+        word_freq = Counter(spam_list+ham_list)
 	spam_dict = Counter(spam_list)
 	ham_dict = Counter(ham_list)
 #	clean_words = [ w for w in words_list if (len(w) > 1) and (len(w) <= 20)]
 #       word_freq = Counter(clean_words)
-# 	set_feat = [ i for i in word_freq if word_freq[i] > num]
+ 	vocab = [ i for i in word_freq if word_freq[i] > 1]
 
-	return spam_dict, ham_dict, list(vocab)
+	return spam_dict, ham_dict, vocab
 
 
 # create vector for each file in these datasets
@@ -157,7 +158,7 @@ def train_NB(train_vec, train_class):
 	spam_lh = spam_num/spam_denom
 	ham_lh = ham_num/ham_denom
 	
-	return spam_p, ham_p
+	return spam_lh, ham_lh
 
 
 # using trained classifier to classify the test sample
@@ -183,7 +184,7 @@ def test_NB():
 	train_ham_div = int(ratio*len(ham))
 
 	train_set = [(spam[i], 1) for i in xrange(train_spam_div)] + [(ham[j], 0) for j in xrange(train_ham_div)]
-        test_set = [(spam[train_spam_div+i], 1) for i in xrange(len(spam) - train_spam_div)] + [(ham[train_ham_div+j], 0) for j in xrange(len(ham)-train_ham_div)]  
+        test_set = [(spam[train_spam_div+i], 1) for i in xrange(len(spam) - train_spam_div)] + [(ham[train_ham_div+j], 0) for j in xrange(len(ham)-train_ham_div)]
 #	train_sample = spam[:train_spam_div] + ham[:train_ham_div]
 #	train_class = [1]*train_spam_div + [0]*train_ham_div
 
