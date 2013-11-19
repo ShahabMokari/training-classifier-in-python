@@ -12,6 +12,7 @@ from operator import itemgetter
 
 from numpy import ones
 from numpy import log
+from numpy import array
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
@@ -45,15 +46,15 @@ def obtain_filelist():
 	lemmatizer = WordNetLemmatizer()
 
 	for i in spam_filelist:
-		file = open(i).read()
-#		file = re.sub(r"\d+", " ", open(i).read())
-		words = [lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
+		f = open(i).read()
+		words = (lemmatizer.lemmatize(word) for word in tokenizer.tokenize(f.lower()) if word not in english_stops)
+		words = [ w for w in words if (len(w) > 1) and w.isalpha()]
 		spam_word_list.append(words)
 	
 	for j in ham_filelist:
-		file = open(j).read()
-#		file = re.sub(r"\d+", " ", open(j).read())
-		words = [lemmatizer.lemmatize(word) for word in tokenizer.tokenize(file.lower()) if word not in english_stops]
+		f = open(j).read()
+		words = (lemmatizer.lemmatize(word) for word in tokenizer.tokenize(f.lower()) if word not in english_stops)
+		words = [ w for w in words if (len(w) > 1) and w.isalpha()]
 		ham_word_list.append(words)
 	
 	return spam_word_list, ham_word_list
@@ -69,25 +70,26 @@ def create_vocabularylist(train_set):
 			spam_list.extend(i[0])
 		else:
 			ham_list.extend(i[0])
-        word_freq = Counter(spam_list+ham_list)
+        
+	word_freq = Counter(spam_list+ham_list)
 	spam_dict = Counter(spam_list)
 	ham_dict = Counter(ham_list)
- 	vocab = [ i for i in word_freq if word_freq[i] > 10]
+ 
+        vocab = [ i for i in word_freq if word_freq[i] > 1]
 
 	return spam_dict, ham_dict, vocab
 
 
 # create vector for each file in these datasets
 def create_file2vec(vocab_list, sample):
-	sample_vec = [[]]*len(sample)
-	cnt = 0
-	for file in sample:
+	sample_vec = []
+
+	for f in sample:
 		file_vec = [0]*len(vocab_list)
-		for word in file[0]:
+		for word in f[0]:
 			if word in vocab_list:
 				file_vec[vocab_list.index(word)] += 1
-		sample_vec[cnt] = file_vec
-		cnt += 1
+		sample_vec.append(file_vec)
 
 	return sample_vec, [i[1] for i in sample]
 
@@ -142,7 +144,7 @@ def test_NB():
 	train_vec, train_class = create_file2vec(vocab_list, train_set)
 	test_vec, test_class = create_file2vec(vocab_list, test_set)
 
-	spam_vec, ham_vec = train_NB(train_vec, train_class)
+	spam_vec, ham_vec = train_NB(array(train_vec), array(train_class))
 
 	count = 0
 	for i in range(len(test_class)):
