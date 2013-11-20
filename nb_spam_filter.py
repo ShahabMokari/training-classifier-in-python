@@ -1,6 +1,5 @@
 #!/bin/env python
 
-
 import os
 import cPickle
 import random
@@ -19,7 +18,7 @@ from nltk.stem import WordNetLemmatizer
 
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
-def obtain_filelist():
+def get_words_list():
 	# choose the datasets number
         corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
 	while corpus_no == 0 or corpus_no > 5:
@@ -41,47 +40,49 @@ def obtain_filelist():
 	spam_word_list = []
 	ham_word_list = []
         
-	tokenizer = RegexpTokenizer("[\w']+")
+#	tokenizer = RegexpTokenizer("[\w']+")
+        splitter = re.compile("\W*")
 	english_stops = set(stopwords.words('english'))
 	lemmatizer = WordNetLemmatizer()
 
 	for i in spam_filelist:
 		f = open(i).read()
-		words = (lemmatizer.lemmatize(word) for word in tokenizer.tokenize(f.lower()) if word not in english_stops)
-		words = [ w for w in words if (len(w) > 1) and w.isalpha()]
+		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
+		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
 		spam_word_list.append(words)
 	
 	for j in ham_filelist:
 		f = open(j).read()
-		words = (lemmatizer.lemmatize(word) for word in tokenizer.tokenize(f.lower()) if word not in english_stops)
-		words = [ w for w in words if (len(w) > 1) and w.isalpha()]
+		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
+		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
 		ham_word_list.append(words)
-	
+
+
 	return spam_word_list, ham_word_list
 
 
 # create vocabulary list of these datasets
-def create_vocabularylist(train_set):
+def get_feature_dict(words_list):
 	
-	spam_list = []
-	ham_list = []
-	for i in train_set:
-		if i[1] == 1:
-			spam_list.extend(i[0])
-		else:
-			ham_list.extend(i[0])
-        
-	word_freq = Counter(spam_list+ham_list)
-	spam_dict = Counter(spam_list)
-	ham_dict = Counter(ham_list)
+#	spam_list = []
+#	ham_list = []
+#	for i in train_set:
+#		if i[1] == 1:
+#			spam_list.extend(i[0])
+#		else:
+#			ham_list.extend(i[0])
+#        
+	word_freq = Counter([w for words in words_list for w in words])
+#	spam_dict = Counter(spam_list)
+#	ham_dict = Counter(ham_list)
  
         vocab = [ i for i in word_freq if word_freq[i] > 1]
 
-	return spam_dict, ham_dict, vocab
+	return vocab
 
 
 # create vector for each file in these datasets
-def create_file2vec(vocab_list, sample):
+def get_files_vec(vocab_list, sample):
 	sample_vec = []
 
 	for f in sample:
@@ -117,20 +118,19 @@ def train_NB(train_vec, train_class):
 
 # using trained classifier to classify the test sample
 def classify_NB(vec2classify, spam_lh, ham_lh):
-	spam_p = sum(vec2classify * spam_lh)
-	ham_p = sum(vec2classify * ham_lh)
+	spam_p = sum(vec2classify * spam_lh)+log(1000.0/3448)
+	ham_p = sum(vec2classify * ham_lh)+log(2448.0/3448)
 
 	if spam_p > ham_p:
 		return 1
 	else:
 		return 0
-
 	
 # test the accuarcy of the classifer 
 def test_NB():
 	start = time()
 	ratio = 2.0/3
-	spam, ham = obtain_filelist()
+	spam, ham = get_words_list()
 	random.shuffle(spam)
 	random.shuffle(ham)
 
@@ -140,9 +140,12 @@ def test_NB():
 	train_set = [(i, 1) for i in spam[:train_spam_div]] + [(j, 0) for j in ham[:train_ham_div]]
 	test_set = [(i, 1) for i in spam[train_spam_div:]] + [(j, 0) for j in ham[train_ham_div:]]
 	
-	spam_dict, ham_dict, vocab_list = create_vocabularylist(train_set)
-	train_vec, train_class = create_file2vec(vocab_list, train_set)
-	test_vec, test_class = create_file2vec(vocab_list, test_set)
+	words_list = spam[:train_spam_div] + ham[:train_ham_div]
+
+	vocab_list = get_feature_dict(words_list)
+
+	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
+	test_vec, test_class = get_files_vec(vocab_list, array(test_set))
 
 	spam_vec, ham_vec = train_NB(array(train_vec), array(train_class))
 
@@ -160,6 +163,6 @@ def test_NB():
 
 	print time() - start
 
-if __name__ == '__main__':
-	cProfile.run('test_NB()', 'log_file.pyprof')
+#if __name__ == '__main__':
+#	cProfile.run('test_NB()', 'log_file.pyprof')
 
