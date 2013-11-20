@@ -1,9 +1,9 @@
-taining-bayes-spam-filter
+taining-classifier-in-python
 ============================
 
 ## Background
 
-This project is using Python to build a spam filter with Naive Bayes Classifier with Enron Email Corpus(ham:16454, spam:17171). (http://www.cs.cmu.edu/~enron/).Useful information can be found http://www.aueb.gr/users/ion/docs/ceas2006_paper.pdf .
+This project is using Python to build a spam filter with Naive Bayes, Support Vector Machine (SVM) and Neural Network using Enron Email Corpus(ham:16454, spam:17171). (http://www.cs.cmu.edu/~enron/).Useful information can be found http://www.aueb.gr/users/ion/docs/ceas2006_paper.pdf .
 ## Tools
 
 NLTK  http://nltk.org/
@@ -11,6 +11,8 @@ NLTK  http://nltk.org/
 BeautifulSoup  http://www.crummy.com/software/BeautifulSoup/
 
 Numpy  http://www.numpy.org/
+
+scikit-learn http://scikit-learn.org/stable/
 
 
 ## Project Details
