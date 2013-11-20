@@ -1,20 +1,23 @@
 #!/bin/env python
 
-import os
+import cProfile
 import cPickle
+import os
 import random
 import re
 from collections import Counter
-import cProfile
 from time import time
 from operator import itemgetter
 
 from numpy import ones
 from numpy import log
 from numpy import array
+
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
+
+from sklearn import feature_selection
 
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
@@ -41,7 +44,7 @@ def get_words_list():
 	ham_word_list = []
         
 #	tokenizer = RegexpTokenizer("[\w']+")
-        splitter = re.compile("\W*")
+        splitter = re.compile("\\W*")
 	english_stops = set(stopwords.words('english'))
 	lemmatizer = WordNetLemmatizer()
 
@@ -54,7 +57,7 @@ def get_words_list():
 	for j in ham_filelist:
 		f = open(j).read()
 		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
-		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
+		words = [ w for w in split_words if w not in english_stops and len(w) > 1 and len(w) < 20 and w.isalpha()]
 		ham_word_list.append(words)
 
 
@@ -64,19 +67,8 @@ def get_words_list():
 # create vocabulary list of these datasets
 def get_feature_dict(words_list):
 	
-#	spam_list = []
-#	ham_list = []
-#	for i in train_set:
-#		if i[1] == 1:
-#			spam_list.extend(i[0])
-#		else:
-#			ham_list.extend(i[0])
-#        
 	word_freq = Counter([w for words in words_list for w in words])
-#	spam_dict = Counter(spam_list)
-#	ham_dict = Counter(ham_list)
- 
-        vocab = [ i for i in word_freq if word_freq[i] > 1]
+        vocab = [ i for i in word_freq if word_freq[i] > 0]
 
 	return vocab
 
@@ -129,7 +121,7 @@ def classify_NB(vec2classify, spam_lh, ham_lh):
 # test the accuarcy of the classifer 
 def test_NB():
 	start = time()
-	ratio = 2.0/3
+	ratio = 0.7
 	spam, ham = get_words_list()
 	random.shuffle(spam)
 	random.shuffle(ham)
@@ -145,21 +137,22 @@ def test_NB():
 	vocab_list = get_feature_dict(words_list)
 
 	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
-	test_vec, test_class = get_files_vec(vocab_list, array(test_set))
+	observed, expected = feature_selection.chi2(train_vec, train_class)
 
-	spam_vec, ham_vec = train_NB(array(train_vec), array(train_class))
+	updated_vocab_list = [i[1] for i in sorted(zip(experted, vocab_list)) if i[0] > 10]
+
+	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
+
+	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
+
+	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class))
 
 	count = 0
 	for i in range(len(test_class)):
-		cl_class = classify_NB(test_vec[i], spam_vec, ham_vec)
+		cl_class = classify_NB(updated_test_vec[i], spam_vec, ham_vec)
 		if cl_class == test_class[i]:
 			count += 1
 	print float(count)/len(test_class)
-
-	words_ratio = {}
-	for i in range(len(vocab_list)):
-		words_ratio[vocab_list[i]] = int(spam_vec[i]/ham_vec[i])
-	print sorted(words_ratio.iteritems(), key=itemgetter(1), reverse=True)
 
 	print time() - start
 
