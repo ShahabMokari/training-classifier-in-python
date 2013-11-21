@@ -140,9 +140,15 @@ def test_NB():
 
 	# use chi-square feature selection method to selection important features
 	observed, expected = feature_selection.chi2(train_vec, train_class)
-        chi_deviation = [((observed[i]-expected[i])**2/expected[i]) for i in range(len(observed))]
+        chi_deviation = [0]*len(observed)
+	for i in xrange(len(observed)):
+		if expected[i] == 0 and expected[i] != observed[i]:
+			chi_deviation[i] = 1000
+		else:
+			chi_deviation[i] = int((observed[i]-expected[i])**2/expected[i])
+	
 
-	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list)) if i[0] > 10]
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][3000]
 
 	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
