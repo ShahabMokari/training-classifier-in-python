@@ -22,6 +22,10 @@ from sklearn import feature_selection
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
 def get_words_list():
+	'''
+	Loading dataset and read contents, use tokenize to get tokens and lemmatize the words.
+	'''
+
 	# choose the datasets number
         corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
 	while corpus_no == 0 or corpus_no > 5:
@@ -60,13 +64,15 @@ def get_words_list():
 		words = [ w for w in split_words if w not in english_stops and len(w) > 1 and len(w) < 20 and w.isalpha()]
 		ham_word_list.append(words)
 
-
 	return spam_word_list, ham_word_list
 
 
 # create vocabulary list of these datasets
 def get_feature_dict(words_list):
-	
+        '''
+	draft vocabulary dict.
+	'''
+
 	word_freq = Counter([w for words in words_list for w in words])
         vocab = [ i for i in word_freq if word_freq[i] > 0]
 
@@ -75,6 +81,10 @@ def get_feature_dict(words_list):
 
 # create vector for each file in these datasets
 def get_files_vec(vocab_list, sample):
+	'''
+	translate files into vector
+	'''
+
 	sample_vec = []
 
 	for f in sample:
@@ -89,6 +99,9 @@ def get_files_vec(vocab_list, sample):
 
 # train naive bayes classifier using train matrix and train class labels
 def train_NB(train_vec, train_class):
+        '''
+	training naive bayes clssifier, get the vec parameters
+	'''
 
         # creating a 1 x num_words matrix using numpy 
 	spam_num = ham_num = ones(len(train_vec[0]))
@@ -109,17 +122,40 @@ def train_NB(train_vec, train_class):
 
 
 # using trained classifier to classify the test sample
-def classify_NB(vec2classify, spam_lh, ham_lh):
-	spam_p = sum(vec2classify * spam_lh)*(1000.0/3448)
-	ham_p = sum(vec2classify * ham_lh)*(2448.0/3448)
+def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
+	'''
+	classify the test files using the classifier
+	'''
+	classify_vec = [0]*len(test_vec)
+	for i in test_vec:
+		spam_p = sum(i*spam_lh)*p_abusive
+		ham_p = sum(i*ham_lh)*(1-p_abusive)
+		
+		if spam_p > ham_p:
+			classify_vec[i] = 1
 
-	if spam_p > ham_p:
-		return 1
-	else:
-		return 0
+	total_correct = float(len([i for i, j in zip(classify_vec, test_vec) if i == j]))/len(test_vec)
+        total_wrong = 1 - total_correct
+
+	spam_correct = float(len([ i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/test_vec.count(1)
+	spam_wrong = 1 - spam_correct
 	
+	ham_correct = float(len([i for i, j in zip(classify_ve, test_vec) if i == 0 and j == 0]))/test_vec.count(0)
+	ham_wrong = 1 - ham_correct
+
+	print 'total correct =', total_correct
+	print 'total wrong =', total_wrong
+	print 'spam correct = ', spam_correct
+	print 'spam wrong =', spam_wrong
+	print 'ham correct =', ham_correct
+	print 'ham wrong =', ham_wrong
+
 # test the accuarcy of the classifer 
 def test_NB():
+	'''
+	test naive bayes
+	'''
+
 	start = time()
 	ratio = 0.7
 	spam, ham = get_words_list()
@@ -148,20 +184,17 @@ def test_NB():
 			chi_deviation[i] = int((observed[i]-expected[i])**2/expected[i])
 	
 
-	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][3000]
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][4000]
 
 	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
 	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
 	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class))
+        p_abusive = train_spam_div/(train_spam_div+train_ham_div)
 
-	count = 0
-	for i in range(len(test_class)):
-		cl_class = classify_NB(updated_test_vec[i], spam_vec, ham_vec)
-		if cl_class == test_class[i]:
-			count += 1
-	print float(count)/len(test_class)
+	classify_NB(test_vec, spam_vec, ham_vec, p_abusive)
+	
 
 	print time() - start
 
