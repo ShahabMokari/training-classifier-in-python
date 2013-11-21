@@ -102,16 +102,16 @@ def train_NB(train_vec, train_class):
 			ham_num += train_vec[i]
 			ham_denom += sum(train_vec[i])
 	
-	spam_lh = log(spam_num/spam_denom)
-	ham_lh = log(ham_num/ham_denom)
+	spam_lh = spam_num/spam_denom
+	ham_lh = ham_num/ham_denom
 	
 	return spam_lh, ham_lh
 
 
 # using trained classifier to classify the test sample
 def classify_NB(vec2classify, spam_lh, ham_lh):
-	spam_p = sum(vec2classify * spam_lh)+log(1000.0/3448)
-	ham_p = sum(vec2classify * ham_lh)+log(2448.0/3448)
+	spam_p = sum(vec2classify * spam_lh)*(1000.0/3448)
+	ham_p = sum(vec2classify * ham_lh)*(2448.0/3448)
 
 	if spam_p > ham_p:
 		return 1
@@ -137,9 +137,12 @@ def test_NB():
 	vocab_list = get_feature_dict(words_list)
 
 	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
-	observed, expected = feature_selection.chi2(train_vec, train_class)
 
-	updated_vocab_list = [i[1] for i in sorted(zip(experted, vocab_list)) if i[0] > 10]
+	# use chi-square feature selection method to selection important features
+	observed, expected = feature_selection.chi2(train_vec, train_class)
+        chi_deviation = [((observed[i]-expected[i])**2/expected[i]) for i in range(len(observed))]
+
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list)) if i[0] > 10]
 
 	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
