@@ -127,28 +127,20 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	classify the test files using the classifier
 	'''
 	classify_vec = [0]*len(test_vec)
-	for i in test_vec:
-		spam_p = sum(i*spam_lh)*p_abusive
-		ham_p = sum(i*ham_lh)*(1-p_abusive)
+	for i in xrange(len(test_vec)):
+		spam_p = sum(test_vec[i]*spam_lh)*p_abusive
+		ham_p = sum(test_vec[i]*ham_lh)*(1-p_abusive)
 		
 		if spam_p > ham_p:
 			classify_vec[i] = 1
 
-	total_correct = float(len([i for i, j in zip(classify_vec, test_vec) if i == j]))/len(test_vec)
-        total_wrong = 1 - total_correct
+	p = float(len([ i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/classify_vec.count(1)
+	r = float(len([i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/test_vec.count(1)
+        f_score = 2*p*r/(p+r)
 
-	spam_correct = float(len([ i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/test_vec.count(1)
-	spam_wrong = 1 - spam_correct
-	
-	ham_correct = float(len([i for i, j in zip(classify_ve, test_vec) if i == 0 and j == 0]))/test_vec.count(0)
-	ham_wrong = 1 - ham_correct
-
-	print 'total correct =', total_correct
-	print 'total wrong =', total_wrong
-	print 'spam correct = ', spam_correct
-	print 'spam wrong =', spam_wrong
-	print 'ham correct =', ham_correct
-	print 'ham wrong =', ham_wrong
+	print 'precision = ', p
+	print 'recall = ', r
+	print 'f_score = ', f_score
 
 # test the accuarcy of the classifer 
 def test_NB():
@@ -184,16 +176,16 @@ def test_NB():
 			chi_deviation[i] = int((observed[i]-expected[i])**2/expected[i])
 	
 
-	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][4000]
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:3000]
 
 	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
 	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
 	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class))
-        p_abusive = train_spam_div/(train_spam_div+train_ham_div)
+        p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
-	classify_NB(test_vec, spam_vec, ham_vec, p_abusive)
+	classify_NB(updated_test_vec, test_class, spam_vec, ham_vec, p_abusive)
 	
 
 	print time() - start
