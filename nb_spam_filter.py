@@ -92,7 +92,7 @@ def get_files_vec(vocab_list, sample):
 		for word in f[0]:
 			if word in vocab_list:
 				file_vec[vocab_list.index(word)] += 1
-		sample_vec.append(file_vec)
+	        sample_vec.append(file_vec)
 
 	return sample_vec, [i[1] for i in sample]
 
