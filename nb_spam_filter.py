@@ -40,8 +40,8 @@ def get_words_list():
         ham_dir = os.listdir(ham_path)
         
 	# get the filelist of the spam and ham datasets
-        spam_filelist= [os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam']
-        ham_filelist = [os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham']
+        spam_filelist= (os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam')
+        ham_filelist = (os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham')
         
 	# tokenize the files into words
 	spam_word_list = []
@@ -126,20 +126,22 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	'''
 	classify the test files using the classifier
 	'''
-	classify_vec = [0]*len(test_vec)
-	for i in xrange(len(test_vec)):
+	cnt_true_spam = 0
+	clf_class = [0]*len(test_class)
+	for i in xrange(len(test_class)):
 		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
 		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
 		
-		if spam_p >= ham_p:
-			classify_vec[i] = 1
+		if spam_p >= ham_p and test_class[i] == 1:
+			cnt_true_spam += 1
+			clf_class[i] = 1
 
-	p = float(len([ i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/classify_vec.count(1)
-	r = float(len([i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/test_vec.count(1)
-        f_score = 2*p*r/(p+r)
+	clf_precision = float(cnt_true_spam)/clf_class.count(1)
+	clf_recall = float(cnt_true_spam)/test_class.count(1)
+        f_score = 2*clf_precision*clf_recall/(clf_precision+clf_recall)
 
-	print 'precision = ', p
-	print 'recall = ', r
+	print 'precision = ', clf_precision
+	print 'recall = ', clf_recall
 	print 'f_score = ', f_score
 
 # test the accuarcy of the classifer 
@@ -173,7 +175,7 @@ def test_NB():
 		if expected[i] == 0 and expected[i] != observed[i]:
 			chi_deviation[i] = 1000
 		else:
-			chi_deviation[i] = int((observed[i]-expected[i])**2/expected[i])
+			chi_deviation[i] = float((observed[i]-expected[i])**2)/expected[i]
 	
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:3000]
@@ -183,12 +185,13 @@ def test_NB():
 	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
 	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class), len(updated_vocab_list))
-        p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
+        
+	p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
 	classify_NB(updated_test_vec, test_class, spam_vec, ham_vec, p_abusive)
 	
 
-	print time() - start
+	print time() - start, 'seconds'
 
 if __name__ == '__main__':
 	cProfile.run('test_NB()', 'running_log.pyprof')
