@@ -74,7 +74,7 @@ def get_feature_dict(words_list):
 	'''
 
 	word_freq = Counter([w for words in words_list for w in words])
-        vocab = [ i for i in word_freq if word_freq[i] > 0]
+        vocab = [i for i in word_freq if word_freq[i] > 0]
 
 	return vocab
 
@@ -98,16 +98,16 @@ def get_files_vec(vocab_list, sample):
 
 
 # train naive bayes classifier using train matrix and train class labels
-def train_NB(train_vec, train_class):
+def train_NB(train_vec, train_class, k_smoothing):
         '''
 	training naive bayes clssifier, get the vec parameters
 	'''
 
         # creating a 1 x num_words matrix using numpy 
 	spam_num = ham_num = ones(len(train_vec[0]))
-	spam_denom = ham_denom = 2
+	spam_denom = ham_denom = k_smoothing
 
-	for i in range(len(train_class)):
+	for i in xrange(len(train_class)):
 		if train_class[i] == 1:
 			spam_num += train_vec[i]
 			spam_denom += sum(train_vec[i])
@@ -115,8 +115,8 @@ def train_NB(train_vec, train_class):
 			ham_num += train_vec[i]
 			ham_denom += sum(train_vec[i])
 	
-	spam_lh = spam_num/spam_denom
-	ham_lh = ham_num/ham_denom
+	spam_lh = log(spam_num/float(spam_denom))
+	ham_lh = log(ham_num/float(ham_denom))
 	
 	return spam_lh, ham_lh
 
@@ -128,10 +128,10 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	'''
 	classify_vec = [0]*len(test_vec)
 	for i in xrange(len(test_vec)):
-		spam_p = sum(test_vec[i]*spam_lh)*p_abusive
-		ham_p = sum(test_vec[i]*ham_lh)*(1-p_abusive)
+		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
+		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
 		
-		if spam_p > ham_p:
+		if spam_p >= ham_p:
 			classify_vec[i] = 1
 
 	p = float(len([ i for i, j in zip(classify_vec, test_vec) if i == 1 and j == 1]))/classify_vec.count(1)
@@ -182,7 +182,7 @@ def test_NB():
 
 	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
-	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class))
+	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class), len(updated_vocab_list))
         p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
 	classify_NB(updated_test_vec, test_class, spam_vec, ham_vec, p_abusive)
@@ -190,6 +190,6 @@ def test_NB():
 
 	print time() - start
 
-#if __name__ == '__main__':
-#	cProfile.run('test_NB()', 'log_file.pyprof')
+if __name__ == '__main__':
+	cProfile.run('test_NB()', 'running_log.pyprof')
 
