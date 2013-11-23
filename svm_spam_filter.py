@@ -127,9 +127,9 @@ def classify_SVM(test_vec, test_class, clf):
 	print 'f_score = ', f_score
 
 # test the accuarcy of the classifer 
-def test_NB():
+def test_SVM():
 	'''
-	test naive bayes
+	test SVM
 	'''
 
 	start = time()
@@ -150,7 +150,7 @@ def test_NB():
 
 	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
 
-	# use chi-square feature selection method to selection important features
+	# use chi-square feature selection method to select important features
 	observed, expected = feature_selection.chi2(train_vec, train_class)
         chi_deviation = [0]*len(observed)
 	for i in xrange(len(observed)):
@@ -158,7 +158,6 @@ def test_NB():
 			chi_deviation[i] = 1000
 		else:
 			chi_deviation[i] = float((observed[i]-expected[i])**2)/expected[i]
-	
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
@@ -168,10 +167,10 @@ def test_NB():
 
 	clf= train_SVM(array(updated_train_vec), array(train_class))
         
-	classify_SVM(updated_test_vec, test_class, clf)
+	classify_SVM(array(updated_test_vec), array(test_class), array(clf))
 	
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
-	cProfile.run('test_NB()', 'running_log.pyprof')
+	cProfile.run('test_SVM()', 'running_log.pyprof')
 
