@@ -107,21 +107,27 @@ def train_NB(train_vec, train_class, k_smoothing):
 	'''
 
         # creating a 1 x num_words matrix using numpy 
-	spam_num = ham_num = ones(len(train_vec[0]))
-	spam_denom = ham_denom = k_smoothing
+#	spam_num = ham_num = ones(len(train_vec[0]))
+#	spam_denom = ham_denom = k_smoothing
 
-	for i in xrange(len(train_class)):
-		if train_class[i] == 1:
-			spam_num += train_vec[i]
-			spam_denom += sum(train_vec[i])
-		else:
-			ham_num += train_vec[i]
-			ham_denom += sum(train_vec[i])
+	spam_num = train_vec[:train_class.count(1)].sum(axis(1)) + ones(len(train_vec[0]))
+	ham_num = train_vec[train_class.count(1):].sum(axis(1)) + ones(len(train_vec[0]))
+
+	spam_denom = spam_num.sum() + k_smoothing
+	ham_denom = ham_num.sum() + k_smoothing
+
+#	for i in xrange(len(train_class)):
+#		if train_class[i] == 1:
+#			spam_num += train_vec[i]
+#			spam_denom += sum(train_vec[i])
+#		else:
+#			ham_num += train_vec[i]
+#			ham_denom += sum(train_vec[i])
+#	
+#	spam_lh = log(spam_num/float(spam_denom))
+#	ham_lh = log(ham_num/float(ham_denom))
 	
-	spam_lh = log(spam_num/float(spam_denom))
-	ham_lh = log(ham_num/float(ham_denom))
-	
-	return spam_lh, ham_lh
+	return log(spam_num/float(spam_denom)), log(ham_num/float(ham_denom))
 
 
 # using trained classifier to classify the test sample
