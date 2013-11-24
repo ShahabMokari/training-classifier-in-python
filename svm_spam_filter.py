@@ -79,7 +79,7 @@ def get_feature_dict(words_list):
 
 
 # create vector for each file in these datasets
-def get_files_vec(vocab_list, sample, sample_class):
+def get_files_vec(vocab_list, sample):
 	'''
 	translate files into vector
 	'''
@@ -89,7 +89,7 @@ def get_files_vec(vocab_list, sample, sample_class):
 		file_vec = [Counter(f[0]) for i in vocab_list]
 		sample.append(file_vec)
 
-	return sample_vec, sample_class
+	return sample_vec, [f[1] for f in sample]
 
 
 # train SVM classifier using train matrix and train class labels
@@ -157,16 +157,16 @@ def test_SVM():
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
-	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set), train_class)
+	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
-	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set), test_class)
+	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
-	clf= train_SVM(updated_train_vec, train_class)
+	clf= train_SVM(array(updated_train_vec), train_class)
         
-	classify_SVM(updated_test_vec, test_class, clf)
+	classify_SVM(array(updated_test_vec), test_class, clf)
 	
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
-	cProfile.run('test_SVM()', 'running_log.pyprof')
+	cProfile.run('test_SVM()', 'svm_clf_log.pyprof')
 
