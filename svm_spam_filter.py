@@ -72,28 +72,24 @@ def get_feature_dict(words_list):
 	draft vocabulary dict.
 	'''
 
-	word_freq = Counter([w for words in words_list for w in words])
+	word_freq = Counter((w for words in words_list for w in words))
         vocab = [i for i in word_freq if word_freq[i] > 0]
 
 	return vocab
 
 
 # create vector for each file in these datasets
-def get_files_vec(vocab_list, sample):
+def get_files_vec(vocab_list, sample, sample_class):
 	'''
 	translate files into vector
 	'''
 
 	sample_vec = []
-
 	for f in sample:
-		file_vec = [0]*len(vocab_list)
-		for word in f[0]:
-			if word in vocab_list:
-				file_vec[vocab_list.index(word)] += 1
-	        sample_vec.append(file_vec)
+		file_vec = [Counter(f[0]) for i in vocab_list]
+		sample.append(file_vec)
 
-	return sample_vec, [i[1] for i in sample]
+	return sample_vec, sample_class
 
 
 # train SVM classifier using train matrix and train class labels
@@ -165,9 +161,9 @@ def test_SVM():
 
 	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
-	clf= train_SVM(array(updated_train_vec), array(train_class))
+	clf= train_SVM(updated_train_vec, train_class)
         
-	classify_SVM(array(updated_test_vec), array(test_class), array(clf))
+	classify_SVM(updated_test_vec, test_class, clf)
 	
 	print time() - start, 'seconds'
 
