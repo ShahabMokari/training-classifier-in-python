@@ -14,7 +14,6 @@ from numpy import log
 from numpy import array
 
 from nltk.corpus import stopwords
-from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 
 from sklearn import feature_selection
@@ -80,13 +79,12 @@ def get_feature_dict(words_list):
 
 
 # create vector for each file in these datasets
-def get_files_vec(vocab_list, sample):
+def get_files_vec(vocab_list, sample, sample_class):
 	'''
 	translate files into vector
 	'''
 
 	sample_vec = []
-        sample_class = []
 	for f in sample:
 		file_vec = [0]*len(vocab_list)
 		file_dict = Counter(f[0])
@@ -95,13 +93,12 @@ def get_files_vec(vocab_list, sample):
 #			if word in vocab_list:
 #				file_vec[vocab_list.index(word)] += 1
 	        sample_vec.append(file_vec)
-		sample_class.append(f[1])
 
 	return sample_vec, sample_class
 
 
 # train naive bayes classifier using train matrix and train class labels
-def train_NB(train_vec, train_class, k_smoothing):
+def train_NB(train_vec, train_spam_div):
         '''
 	training naive bayes clssifier, get the vec parameters
 	'''
@@ -110,11 +107,11 @@ def train_NB(train_vec, train_class, k_smoothing):
 #	spam_num = ham_num = ones(len(train_vec[0]))
 #	spam_denom = ham_denom = k_smoothing
 
-	spam_num = train_vec[:train_class.count(1)].sum(axis(1)) + ones(len(train_vec[0]))
-	ham_num = train_vec[train_class.count(1):].sum(axis(1)) + ones(len(train_vec[0]))
+	spam_num = train_vec[:train_spam_div].sum(axis(1)) + ones(len(train_vec[0]))
+	ham_num = train_vec[train_spam_div:].sum(axis(1)) + ones(len(train_vec[0]))
 
-	spam_denom = spam_num.sum() + k_smoothing
-	ham_denom = ham_num.sum() + k_smoothing
+	spam_denom = spam_num.sum() + len(train_vec[0])
+	ham_denom = ham_num.sum() + len(train_vec[0])
 
 #	for i in xrange(len(train_class)):
 #		if train_class[i] == 1:
@@ -175,7 +172,7 @@ def test_NB():
 
 	vocab_list = get_feature_dict(words_list)
 
-	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
+	train_vec, train_class = get_files_vec(vocab_list, array(train_set), train_class)
 
 	# use chi-square feature selection method to selection important features
 	observed, expected = feature_selection.chi2(train_vec, train_class)
@@ -189,17 +186,16 @@ def test_NB():
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
-	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
+	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set), train_class)
 
-	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
+	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set), test_class)
 
-	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_class), len(updated_vocab_list))
+	spam_vec, ham_vec = train_NB(array(updated_train_vec), train_spam_div)
         
 	p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
 	classify_NB(updated_test_vec, test_class, spam_vec, ham_vec, p_abusive)
 	
-
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
