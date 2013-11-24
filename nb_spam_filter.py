@@ -79,22 +79,17 @@ def get_feature_dict(words_list):
 
 
 # create vector for each file in these datasets
-def get_files_vec(vocab_list, sample, sample_class):
+def get_files_vec(vocab_list, sample):
 	'''
 	translate files into vector
 	'''
 
 	sample_vec = []
 	for f in sample:
-		file_vec = [0]*len(vocab_list)
-		file_dict = Counter(f[0])
-		file_vec = [file_dict[i] for i in vocab_list]
-#		for word in f[0]:
-#			if word in vocab_list:
-#				file_vec[vocab_list.index(word)] += 1
+		file_vec = [Counter(f[0])[i] for i in vocab_list]
 	        sample_vec.append(file_vec)
 
-	return sample_vec, sample_class
+	return sample_vec, [f[1] for f in sample]
 
 
 # train naive bayes classifier using train matrix and train class labels
@@ -172,7 +167,7 @@ def test_NB():
 
 	vocab_list = get_feature_dict(words_list)
 
-	train_vec, train_class = get_files_vec(vocab_list, array(train_set), train_class)
+	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
 
 	# use chi-square feature selection method to select important features
 	observed, expected = feature_selection.chi2(train_vec, train_class)
@@ -186,9 +181,9 @@ def test_NB():
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
-	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set), train_class)
+	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
-	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set), test_class)
+	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
 	spam_vec, ham_vec = train_NB(array(updated_train_vec), train_spam_div)
         
