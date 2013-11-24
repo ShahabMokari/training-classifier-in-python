@@ -1,4 +1,9 @@
-#!/bin/env python
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# author: shenzhun
+# date: 11/2013
+#
 
 import cProfile
 import cPickle
@@ -73,7 +78,7 @@ def get_feature_dict(words_list):
 	'''
 
 	word_freq = Counter((w for words in words_list for w in words))
-        vocab = [i for i in word_freq if word_freq[i] > 0]
+        vocab = [i for i in word_freq]
 
 	return vocab
 
@@ -84,41 +89,26 @@ def get_files_vec(vocab_list, sample):
 	translate files into vector
 	'''
 
-	sample_vec = []
-	for f in sample:
-		file_vec = [Counter(f[0])[i] for i in vocab_list]
-	        sample_vec.append(file_vec)
+	sample_vec = [None]*len(sample)
+	for i,f in enumerate(sample):
+		word_freq = Counter(f[0])
+		sample_vec[i] = [word_freq[j] for j in vocab_list]
 
 	return sample_vec, [f[1] for f in sample]
 
 
-# train naive bayes classifier using train matrix and train class labels
+# train n0aive bayes classifier using train matrix and train class labels
 def train_NB(train_vec, train_spam_div):
         '''
 	training naive bayes clssifier, get the vec parameters
 	'''
 
-        # creating a 1 x num_words matrix using numpy 
-#	spam_num = ham_num = ones(len(train_vec[0]))
-#	spam_denom = ham_denom = k_smoothing
-
-	spam_num = train_vec[:train_spam_div].sum(axis(1)) + ones(len(train_vec[0]))
-	ham_num = train_vec[train_spam_div:].sum(axis(1)) + ones(len(train_vec[0]))
+	spam_num = train_vec[:train_spam_div].sum(axis=0) + ones(len(train_vec[0]))*train_spam_div
+	ham_num = train_vec[train_spam_div:].sum(axis=0) + ones(len(train_vec[0]))*(len(train_vec)-train_spam_div)
 
 	spam_denom = spam_num.sum() + len(train_vec[0])
 	ham_denom = ham_num.sum() + len(train_vec[0])
 
-#	for i in xrange(len(train_class)):
-#		if train_class[i] == 1:
-#			spam_num += train_vec[i]
-#			spam_denom += sum(train_vec[i])
-#		else:
-#			ham_num += train_vec[i]
-#			ham_denom += sum(train_vec[i])
-#	
-#	spam_lh = log(spam_num/float(spam_denom))
-#	ham_lh = log(ham_num/float(ham_denom))
-	
 	return log(spam_num/float(spam_denom)), log(ham_num/float(ham_denom))
 
 
@@ -133,9 +123,10 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
 		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
 		
-		if spam_p >= ham_p and test_class[i] == 1:
-			cnt_true_spam += 1
+		if spam_p > ham_p:
 			clf_class[i] = 1
+			if test_class[i] == 1:
+				cnt_true_spam += 1
 
 	clf_precision = float(cnt_true_spam)/clf_class.count(1)
 	clf_recall = float(cnt_true_spam)/test_class.count(1)
@@ -179,7 +170,7 @@ def test_NB():
 			chi_deviation[i] = float((observed[i]-expected[i])**2)/expected[i]
 	
 
-	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:2000]
 
 	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
