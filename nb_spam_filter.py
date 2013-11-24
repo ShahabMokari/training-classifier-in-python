@@ -194,5 +194,5 @@ def test_NB():
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
-	cProfile.run('test_NB()', 'running_log.pyprof')
+	cProfile.run('test_NB()', 'nb_clf_log.pyprof')
 
