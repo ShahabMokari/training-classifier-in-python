@@ -37,4 +37,12 @@ Scipy http://www.scipy.org/
   3). add prori probability
   4). optimizate the program
 
+## Books
 
+1. Web Data Mining
+
+2. Programming Collective Intelligence
+
+3. Machine Learning in Action
+
+4. Scipy and Numpy
