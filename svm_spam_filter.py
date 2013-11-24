@@ -157,9 +157,9 @@ def test_SVM():
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
-	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
+	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set), train_class)
 
-	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
+	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set), test_class)
 
 	clf= train_SVM(updated_train_vec, train_class)
         
