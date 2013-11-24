@@ -174,7 +174,7 @@ def test_NB():
 
 	train_vec, train_class = get_files_vec(vocab_list, array(train_set), train_class)
 
-	# use chi-square feature selection method to selection important features
+	# use chi-square feature selection method to select important features
 	observed, expected = feature_selection.chi2(train_vec, train_class)
         chi_deviation = [0]*len(observed)
 	for i in xrange(len(observed)):
