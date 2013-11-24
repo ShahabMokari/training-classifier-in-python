@@ -26,14 +26,15 @@ Scipy http://www.scipy.org/
 
 3. Feature extracte 
 
-4. Training the NB classifier
+4. Training classifiers with Naive Bayes and SVM algorithm
 
 5. Evaluating the classifier 
 
-6. Checing result and imporve it using three ways
+6. Checking results and imporve accuaracy and running speed
 
   1). more datasets
   2). reduce demonsionality
-  3). add proi probability
+  3). add prori probability
+  4). optimizate the program
 
 
