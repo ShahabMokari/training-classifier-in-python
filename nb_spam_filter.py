@@ -73,7 +73,7 @@ def get_feature_dict(words_list):
 	draft vocabulary dict.
 	'''
 
-	word_freq = Counter([w for words in words_list for w in words])
+	word_freq = Counter((w for words in words_list for w in words))
         vocab = [i for i in word_freq if word_freq[i] > 0]
 
 	return vocab
@@ -86,15 +86,18 @@ def get_files_vec(vocab_list, sample):
 	'''
 
 	sample_vec = []
-
+        sample_class = []
 	for f in sample:
 		file_vec = [0]*len(vocab_list)
-		for word in f[0]:
-			if word in vocab_list:
-				file_vec[vocab_list.index(word)] += 1
+		file_dict = Counter(f[0])
+		file_vec = [file_dict[i] for i in vocab_list]
+#		for word in f[0]:
+#			if word in vocab_list:
+#				file_vec[vocab_list.index(word)] += 1
 	        sample_vec.append(file_vec)
+		sample_class.append(f[1])
 
-	return sample_vec, [i[1] for i in sample]
+	return sample_vec, sample_class
 
 
 # train naive bayes classifier using train matrix and train class labels
