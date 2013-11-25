@@ -155,7 +155,7 @@ def test_SVM():
 		else:
 			chi_deviation[i] = float((observed[i]-expected[i])**2)/expected[i]
 
-	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:500]
 
 	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
