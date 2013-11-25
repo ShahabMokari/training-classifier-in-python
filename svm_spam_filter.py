@@ -1,4 +1,9 @@
-#!/bin/env python
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# author: shenzhun
+# date: 11/2013
+#
 
 import cProfile
 import cPickle
@@ -82,11 +87,11 @@ def get_files_vec(vocab_list, sample):
 	'''
 	translate files into vector
 	'''
-
-	sample_vec = []
-	for f in sample:
-		file_vec = [Counter(f[0])[i] for i in vocab_list]
-		sample.append(file_vec)
+        
+	sample_vec = [None]*lne(sample)
+	for i,f in enumerate(sample):
+		word_freq = Counter(f[0])
+		sample_vec[i] = [word_freq[j] for j in vocab_list]
 
 	return sample_vec, [f[1] for f in sample]
 
