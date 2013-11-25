@@ -77,8 +77,7 @@ def get_feature_dict(words_list):
 	draft vocabulary dict.
 	'''
 
-	word_freq = Counter((w for words in words_list for w in words))
-        vocab = [i for i in word_freq]
+	vocab =[ i for i in Counter((w for words in words_list for w in words))]
 
 	return vocab
 
