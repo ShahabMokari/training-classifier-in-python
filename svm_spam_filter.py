@@ -72,8 +72,7 @@ def get_feature_dict(words_list):
 	draft vocabulary dict.
 	'''
 
-	word_freq = Counter((w for words in words_list for w in words))
-        vocab = [i for i in word_freq if word_freq[i] > 0]
+	vocab = [ i for i in Counter((w for words in words_list for w in words))]
 
 	return vocab
 
@@ -86,7 +85,7 @@ def get_files_vec(vocab_list, sample):
 
 	sample_vec = []
 	for f in sample:
-		file_vec = [Counter(f[0]) for i in vocab_list]
+		file_vec = [Counter(f[0])[i] for i in vocab_list]
 		sample.append(file_vec)
 
 	return sample_vec, [f[1] for f in sample]
@@ -110,9 +109,10 @@ def classify_SVM(test_vec, test_class, clf):
 	cnt_true_spam = 0
 	clf_class = [0]*len(test_class)
 	for i in xrange(len(test_class)):
-		if clf.predict(test_vec[i]) == 1 and test_class[i] == 1:
-			cnt_true_spam += 1
+		if clf.predict(test_vec[i]) == 1:
 			clf_class[i] = 1
+			if test_class == 1:
+				cnt_true_spam += 1
 
 	clf_precision = float(cnt_true_spam)/clf_class.count(1)
 	clf_recall = float(cnt_true_spam)/test_class.count(1)
@@ -155,15 +155,15 @@ def test_SVM():
 		else:
 			chi_deviation[i] = float((observed[i]-expected[i])**2)/expected[i]
 
-	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:500]
+	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
-	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
+#	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
+#
+#	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
-	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
-
-	clf= train_SVM(array(updated_train_vec), train_class)
+	clf= train_SVM(get_files_vec(updated_vocab_list, train_set))
         
-	classify_SVM(array(updated_test_vec), test_class, clf)
+	classify_SVM(get_files_vec(updated_vocab_list, test_set), clf)
 	
 	print time() - start, 'seconds'
 
