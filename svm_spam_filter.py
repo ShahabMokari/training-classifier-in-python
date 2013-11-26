@@ -88,7 +88,7 @@ def get_files_vec(vocab_list, sample):
 	translate files into vector
 	'''
         
-	sample_vec = [None]*lne(sample)
+	sample_vec = [None]*len(sample)
 	for i,f in enumerate(sample):
 		word_freq = Counter(f[0])
 		sample_vec[i] = [word_freq[j] for j in vocab_list]
@@ -107,7 +107,7 @@ def train_SVM(train_vec, train_class):
 
 
 # using trained SVM classifier to classify the test sample
-def classify_SVM(test_vec, test_class, clf):
+def classify_SVM(clf, test_vec, test_class):
 	'''
 	classify the test files using the classifier
 	'''
@@ -116,7 +116,7 @@ def classify_SVM(test_vec, test_class, clf):
 	for i in xrange(len(test_class)):
 		if clf.predict(test_vec[i]) == 1:
 			clf_class[i] = 1
-			if test_class == 1:
+			if test_class[i] == 1:
 				cnt_true_spam += 1
 
 	clf_precision = float(cnt_true_spam)/clf_class.count(1)
@@ -162,13 +162,13 @@ def test_SVM():
 
 	updated_vocab_list = [i[1] for i in sorted(zip(chi_deviation, vocab_list), reverse=True)][:1000]
 
-#	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
-#
-#	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
+	updated_train_vec, train_class = get_files_vec(updated_vocab_list, array(train_set))
 
-	clf= train_SVM(get_files_vec(updated_vocab_list, train_set))
+	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
+
+	clf= train_SVM(updated_train_vec, train_class)
         
-	classify_SVM(get_files_vec(updated_vocab_list, test_set), clf)
+	classify_SVM(clf, updated_test_vec, test_class)
 	
 	print time() - start, 'seconds'
 
