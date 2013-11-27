@@ -22,15 +22,15 @@ Scipy http://www.scipy.org/
 
 2. Tokenize files into word, and store them into lists
 
-3. Feature selection based on the words from corpus
-
 3. Feature extracte 
 
-4. Training classifiers with Naive Bayes and SVM algorithm
+4. Feature selection based on the words from corpus
 
-5. Evaluating the classifier 
+5. Training classifiers with Naive Bayes and SVM algorithm
 
-6. Checking results and imporve accuaracy and running speed
+6. Evaluating the classifier 
+
+7. Checking results and imporve accuaracy and running speed
 
   1). more datasets
   2). reduce demonsionality
