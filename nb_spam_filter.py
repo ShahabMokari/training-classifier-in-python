@@ -41,40 +41,58 @@ def get_words_list(dataset):
 #        spam_filelist= (os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam')
 #        ham_filelist = (os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham')
         
-	spam_filelist = []
-	ham_filelist = []
-	for i in os.walk('data/enron/pre/'):
-		path = i[0].split('/')[-1]
-		if path == 'spam':
-			for j in os.walk(i[0]):
-				for k in j[-1]:
-					spam_filelist.append(j[0]+'/'+k)
-                else:
-			for j in os.walk(i[0]):
-				for k in j[-1]:
-					ham_filelist.append(j[0]+'/'+k)
-	# tokenize the files into words
-	spam_word_list = []
-	ham_word_list = []
-        
-#	tokenizer = RegexpTokenizer("[\w']+")
+#	spam_filelist = []
+#	ham_filelist = []
+#	for i in os.walk('data/enron/pre/'+dataset+'/spam/'):
+#		for j in i[-1]:
+#			spam_filelist.append(os.path.join(i[0], j))
+#        
+#	for i in os.walk('data/enron/pre/'+dataset+'/ham/'):
+#		for j in i[-1]:
+#			ham_filelist.append(os.path.join(i[0], j))
+        spam_path = 'data/enron/pre/'+ dataset + '/spam/'
+	ham_path = 'data/enron/pre/'+ dataset + '/ham/'
+        spam_npl = [i[-1] for i in os.walk(spam_path)][0]
+        ham_npl = [i[-1] for i in os.walk(ham_path)][0]
+
+        spam_fl = (open(os.path.join(spam_path, j)).read().lower() for j in spam_npl)
+	ham_fl = (open(os.path.join(ham_path, j)).read().lower() for j in ham_npl)
+
         splitter = re.compile("\\W*")
 	english_stops = set(stopwords.words('english'))
 	lemmatizer = WordNetLemmatizer()
 
-	for i in spam_filelist:
-		f = open(i).read()
-		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
-		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
-		spam_word_list.append(words)
-	
-	for j in ham_filelist:
-		f = open(j).read()
-		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
-		words = [ w for w in split_words if w not in english_stops and len(w) > 1 and len(w) < 20 and w.isalpha()]
-		ham_word_list.append(words)
+	# tokenize the files into words
+	spam_wl = [None]*len(spam_npl)
+	for i,f in enumerate(spam_fl):
+		spam_wl[i] = [word for word in (lemmatizer.lemmatize(w) for w in splitter.split(f) \
+				if w not in english_stops and w.isalpha()) if len(word) > 2 and len(word) < 20]
+        
+	ham_wl = [None]*len(ham_npl)
+	for i,f in enumerate(ham_fl):
+		ham_wl[i] = [word for word in (lemmatizer.lemmatize(w) for w in splitter.split(f) \
+				if w not in english_stops and w.isalpha()) if len(word) > 2 and len(word) < 20]
 
-	return spam_word_list, ham_word_list
+#	spam_wl =[lemmatizer.lemmatize(w) for w in (splitter.split(f) for f in spam_fl) if w not in english_stops and w.isalpha() \
+#			and lemmatizer.lemmatize(w) > 2 and lemmatizer.lemmatize(w) < 20]
+#	ham_wl = [lemmatizer.lemmatize(w) for w in (l for l in ham_fl) if w not in english_stops and w.isalpha() \ 
+#			and lemmatizer.lemmatize(w) > 2 and lemmatizer.lemmatize(w) < 20]
+
+        
+#	tokenizer = RegexpTokenizer("[\w']+")
+
+#	for i in spam_filelist:
+#		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(i) for i in spam_filelist)
+#		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
+#		spam_word_list.append(words)
+#	
+#	for j in ham_filelist:
+#		f = open(j).read()
+#		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
+#		words = [ w for w in split_words if w not in english_stops and len(w) > 1 and len(w) < 20 and w.isalpha()]
+#		ham_word_list.append(words)
+#
+	return spam_wl, ham_wl
 
 
 # create vocabulary list of these datasets
