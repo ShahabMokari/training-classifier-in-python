@@ -63,10 +63,8 @@ def get_feature_dict(words_list):
         '''
 	draft vocabulary dict.
 	'''
-
-	vocab =[ i for i in Counter((w for words in words_list for w in words))]
-
-	return vocab
+        return list(set([w for words in words_list for w in set(words)]))
+#	return [i for i in Counter((w for words in words_list for w in words))]
 
 
 # create vector for each file in these datasets
@@ -172,5 +170,5 @@ def test_NB(ds_name='enron1'):
 
 if __name__ == '__main__':
         enron_set = ['enron1', 'enron2', 'enron3', 'enron4', 'enron5','enron6']
-	if sys.argv[1] in enron_set:
-		cProfile.run('test_NB(sys.argv[1])', 'nb_clf.pyprof')
+	if len(sys.argv) == 2 and sys.argv[1] in enron_set:
+		cProfile.run('test_NB(sys.argv[1])', 'nb_clf_1.pyprof')
