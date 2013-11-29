@@ -10,6 +10,7 @@ import cPickle
 import os
 import random
 import re
+import sys
 from collections import Counter
 from time import time
 from operator import itemgetter
@@ -25,19 +26,19 @@ from sklearn import feature_selection
 
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
-def get_words_list():
+def get_words_list(dataset):
 	'''
 	Loading dataset and read contents, use tokenize to get tokens and lemmatize the words.
 	'''
 
 	# choose the datasets number
-        corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
-	while corpus_no == 0 or corpus_no > 5:
-		corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
-	enron_corpus = 'enron' + str(corpus_no) 
-        
+#        corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
+#	while corpus_no == 0 or corpus_no > 5:
+#		corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
+#	enron_corpus = 'enron' + str(corpus_no) 
+
 	# join the path and file name together
-        path = os.path.join('data/enron/pre/', enron_corpus)
+        path = os.path.join('data/enron/pre/', dataset)
         spam_path = os.path.join(path, 'spam')
         ham_path = os.path.join(path, 'ham')
         spam_dir = os.listdir(spam_path)
@@ -136,14 +137,14 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	print 'f_score = ', f_score
 
 # test the accuarcy of the classifer 
-def test_NB():
+def test_NB(ds_name='enron1'):
 	'''
 	test naive bayes
 	'''
 
 	start = time()
 	ratio = 0.7
-	spam, ham = get_words_list()
+	spam, ham = get_words_list(ds_name)
 	random.shuffle(spam)
 	random.shuffle(ham)
 
@@ -184,5 +185,6 @@ def test_NB():
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
-	cProfile.run('test_NB()', 'nb_clf_log.pyprof')
-
+        enron_set = ['enron1', 'enron2', 'enron3', 'enron4', 'enron5']
+	if sys.argv[1] in enron_set:
+		cProfile.run('test_NB(sys.argv[1])', 'nb_clf.pyprof')
