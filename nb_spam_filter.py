@@ -32,24 +32,6 @@ def get_words_list(dataset):
 	'''
 
 	# join the path and file name together
-#        spam_path = os.path.join('data/enron/pre'+dataset, 'spam')
-#        ham_path = os.path.join(path, 'ham')
-#        spam_dir = os.listdir(spam_path)
-#        ham_dir = os.listdir(ham_path)
-        
-	# get the filelist of the spam and ham datasets
-#        spam_filelist= (os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam')
-#        ham_filelist = (os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham')
-        
-#	spam_filelist = []
-#	ham_filelist = []
-#	for i in os.walk('data/enron/pre/'+dataset+'/spam/'):
-#		for j in i[-1]:
-#			spam_filelist.append(os.path.join(i[0], j))
-#        
-#	for i in os.walk('data/enron/pre/'+dataset+'/ham/'):
-#		for j in i[-1]:
-#			ham_filelist.append(os.path.join(i[0], j))
         spam_path = 'data/enron/pre/'+ dataset + '/spam/'
 	ham_path = 'data/enron/pre/'+ dataset + '/ham/'
         spam_npl = [i[-1] for i in os.walk(spam_path)][0]
@@ -73,25 +55,6 @@ def get_words_list(dataset):
 		ham_wl[i] = [word for word in (lemmatizer.lemmatize(w) for w in splitter.split(f) \
 				if w not in english_stops and w.isalpha()) if len(word) > 2 and len(word) < 20]
 
-#	spam_wl =[lemmatizer.lemmatize(w) for w in (splitter.split(f) for f in spam_fl) if w not in english_stops and w.isalpha() \
-#			and lemmatizer.lemmatize(w) > 2 and lemmatizer.lemmatize(w) < 20]
-#	ham_wl = [lemmatizer.lemmatize(w) for w in (l for l in ham_fl) if w not in english_stops and w.isalpha() \ 
-#			and lemmatizer.lemmatize(w) > 2 and lemmatizer.lemmatize(w) < 20]
-
-        
-#	tokenizer = RegexpTokenizer("[\w']+")
-
-#	for i in spam_filelist:
-#		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(i) for i in spam_filelist)
-#		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
-#		spam_word_list.append(words)
-#	
-#	for j in ham_filelist:
-#		f = open(j).read()
-#		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
-#		words = [ w for w in split_words if w not in english_stops and len(w) > 1 and len(w) < 20 and w.isalpha()]
-#		ham_word_list.append(words)
-#
 	return spam_wl, ham_wl
 
 
