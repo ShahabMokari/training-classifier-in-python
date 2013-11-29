@@ -31,23 +31,28 @@ def get_words_list(dataset):
 	Loading dataset and read contents, use tokenize to get tokens and lemmatize the words.
 	'''
 
-	# choose the datasets number
-#        corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
-#	while corpus_no == 0 or corpus_no > 5:
-#		corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
-#	enron_corpus = 'enron' + str(corpus_no) 
-
 	# join the path and file name together
-        path = os.path.join('data/enron/pre/', dataset)
-        spam_path = os.path.join(path, 'spam')
-        ham_path = os.path.join(path, 'ham')
-        spam_dir = os.listdir(spam_path)
-        ham_dir = os.listdir(ham_path)
+#        spam_path = os.path.join('data/enron/pre'+dataset, 'spam')
+#        ham_path = os.path.join(path, 'ham')
+#        spam_dir = os.listdir(spam_path)
+#        ham_dir = os.listdir(ham_path)
         
 	# get the filelist of the spam and ham datasets
-        spam_filelist= (os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam')
-        ham_filelist = (os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham')
+#        spam_filelist= (os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam')
+#        ham_filelist = (os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham')
         
+	spam_filelist = []
+	ham_filelist = []
+	for i in os.walk('data/enron/pre/'):
+		path = i[0].split('/')[-1]
+		if path == 'spam':
+			for j in os.walk(i[0]):
+				for k in j[-1]:
+					spam_filelist.append(j[0]+'/'+k)
+                else:
+			for j in os.walk(i[0]):
+				for k in j[-1]:
+					ham_filelist.append(j[0]+'/'+k)
 	# tokenize the files into words
 	spam_word_list = []
 	ham_word_list = []
@@ -185,6 +190,6 @@ def test_NB(ds_name='enron1'):
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
-        enron_set = ['enron1', 'enron2', 'enron3', 'enron4', 'enron5']
+        enron_set = ['enron1', 'enron2', 'enron3', 'enron4', 'enron5','enron6']
 	if sys.argv[1] in enron_set:
 		cProfile.run('test_NB(sys.argv[1])', 'nb_clf.pyprof')
