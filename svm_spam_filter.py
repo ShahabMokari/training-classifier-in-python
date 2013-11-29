@@ -25,50 +25,36 @@ from sklearn import feature_selection
 from sklearn import svm
 
 # obtain spam and ham files in the data directory, then tokenize the file into word without punctuations.
-def get_words_list():
+def get_words_list(dataset):
 	'''
 	Loading dataset and read contents, use tokenize to get tokens and lemmatize the words.
 	'''
 
-	# choose the datasets number
-        corpus_no = abs(int(raw_input('Enter the number (1-5) to select corpus in enron(1, 2, 3, 4, 5): ')))
-	while corpus_no == 0 or corpus_no > 5:
-		corpus_no = abs(int(raw_input('Please re-enter the numver of corpora(1-5): ')))
-	enron_corpus = 'enron' + str(corpus_no) 
-        
 	# join the path and file name together
-        path = os.path.join('data/enron/pre/', enron_corpus)
-        spam_path = os.path.join(path, 'spam')
-        ham_path = os.path.join(path, 'ham')
-        spam_dir = os.listdir(spam_path)
-        ham_dir = os.listdir(ham_path)
-        
-	# get the filelist of the spam and ham datasets
-        spam_filelist= (os.path.join(spam_path, f) for f in spam_dir if f.split('.')[-2] == 'spam')
-        ham_filelist = (os.path.join(ham_path, f) for f in ham_dir if f.split('.')[-2] == 'ham')
-        
-	# tokenize the files into words
-	spam_word_list = []
-	ham_word_list = []
-        
-#	tokenizer = RegexpTokenizer("[\w']+")
+        spam_path = 'data/enron/pre/'+ dataset + '/spam/'
+	ham_path = 'data/enron/pre/'+ dataset + '/ham/'
+        spam_npl = [i[-1] for i in os.walk(spam_path)][0]
+        ham_npl = [i[-1] for i in os.walk(ham_path)][0]
+
+        spam_fl = (open(os.path.join(spam_path, j)).read().lower() for j in spam_npl)
+	ham_fl = (open(os.path.join(ham_path, j)).read().lower() for j in ham_npl)
+
         splitter = re.compile("\\W*")
 	english_stops = set(stopwords.words('english'))
 	lemmatizer = WordNetLemmatizer()
 
-	for i in spam_filelist:
-		f = open(i).read()
-		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
-		words = [ w for w in split_words if w not in english_stops and len(w) > 2 and len(w) < 20 and w.isalpha()]
-		spam_word_list.append(words)
-	
-	for j in ham_filelist:
-		f = open(j).read()
-		split_words = (lemmatizer.lemmatize(w) for w in splitter.split(f.lower()))
-		words = [ w for w in split_words if w not in english_stops and len(w) > 1 and len(w) < 20 and w.isalpha()]
-		ham_word_list.append(words)
+	# tokenize the files into words
+	spam_wl = [None]*len(spam_npl)
+	for i,f in enumerate(spam_fl):
+		spam_wl[i] = [word for word in (lemmatizer.lemmatize(w) for w in splitter.split(f) \
+				if w not in english_stops and w.isalpha()) if len(word) > 2 and len(word) < 20]
+        
+	ham_wl = [None]*len(ham_npl)
+	for i,f in enumerate(ham_fl):
+		ham_wl[i] = [word for word in (lemmatizer.lemmatize(w) for w in splitter.split(f) \
+				if w not in english_stops and w.isalpha()) if len(word) > 2 and len(word) < 20]
 
-	return spam_word_list, ham_word_list
+	return spam_wl, ham_wl
 
 
 # create vocabulary list of these datasets
@@ -76,10 +62,8 @@ def get_feature_dict(words_list):
         '''
 	draft vocabulary dict.
 	'''
-
-	vocab = [ i for i in Counter((w for words in words_list for w in words))]
-
-	return vocab
+        return list(set([w for words in words_list for w in set(words)]))
+#	return [i for i in Counter((w for words in words_list for w in words))]
 
 
 # create vector for each file in these datasets
