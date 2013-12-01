@@ -63,8 +63,8 @@ def get_feature_dict(words_list):
         '''
 	draft vocabulary dict.
 	'''
-        return list(set([w for words in words_list for w in set(words)]))
-#	return [i for i in Counter((w for words in words_list for w in words))]
+#        return list(set([w for words in words_list for w in set(words)]))
+	return [i for i in Counter((w for words in words_list for w in words))]
 
 
 # create vector for each file in these datasets
@@ -141,6 +141,7 @@ def test_NB(ds_name='enron1'):
 	words_list = spam[:train_spam_div] + ham[:train_ham_div]
 
 	vocab_list = get_feature_dict(words_list)
+	test_vocab_list = get_feature_dict(spam[train_spam_div:]+ham[train_ham_div:])
 
 	train_vec, train_class = get_files_vec(vocab_list, array(train_set))
 
@@ -165,7 +166,7 @@ def test_NB(ds_name='enron1'):
 	p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
 	classify_NB(updated_test_vec, test_class, spam_vec, ham_vec, p_abusive)
-	
+        print 'feature_lose = ', 1 - float(len(vocab_list))/len(set(vocab_list+test_vocab_list))	
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
