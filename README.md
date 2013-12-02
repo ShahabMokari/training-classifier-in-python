@@ -1,4 +1,4 @@
-taining-classifier-in-python
+training-classifier-in-python
 ============================
 
 ## Background
