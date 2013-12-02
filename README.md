@@ -14,7 +14,7 @@ BeautifulSoup  http://www.crummy.com/software/BeautifulSoup/
 
 Scipy http://www.scipy.org/
 
-NUmpy http://www.numpy.org/
+Numpy http://www.numpy.org/
 
 
 
