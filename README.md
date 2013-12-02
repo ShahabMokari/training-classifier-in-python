@@ -12,9 +12,9 @@ NLTK  http://nltk.org/
 
 BeautifulSoup  http://www.crummy.com/software/BeautifulSoup/
 
-Scipy & Numpy http://www.scipy.org/
+Scipy http://www.scipy.org/
 
-http://www.numpy.org/
+NUmpy http://www.numpy.org/
 
 
 
