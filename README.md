@@ -1,9 +1,9 @@
-taining-classifier-in-python
+training-classifier-in-python
 ============================
 
 ## Background
 
-This project is using Python to build a spam filter with Naive Bayes, Support Vector Machine (SVM) and Neural Network using Enron Email Corpus(ham:16454, spam:17171). (http://www.cs.cmu.edu/~enron/).Useful information can be found http://www.aueb.gr/users/ion/docs/ceas2006_paper.pdf .
+This project is using Python to build a spam filter with Naive Bayes, Support Vector Machine (SVM) and Neural Network using Enron Email Corpus(ham:16454, spam:17171). (http://www.cs.cmu.edu/~enron/). Useful information can be found at http://www.aueb.gr/users/ion/docs/ceas2006_paper.pdf .
 ## Tools
 
 scikit-learn http://scikit-learn.org/stable/
@@ -13,6 +13,8 @@ NLTK  http://nltk.org/
 BeautifulSoup  http://www.crummy.com/software/BeautifulSoup/
 
 Scipy http://www.scipy.org/
+
+Numpy http://www.numpy.org/
 
 
 
@@ -46,3 +48,6 @@ Scipy http://www.scipy.org/
 3. Machine Learning in Action
 
 4. Scipy and Numpy
+
+5. Building Machine System with Python 
+
