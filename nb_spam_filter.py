@@ -101,19 +101,21 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	'''
 	classify the test files using the classifier
 	'''
-	cnt_true_spam = 0
-	clf_class = [0]*len(test_class)
-	for i in xrange(len(test_class)):
-		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
-		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
-		
-		if spam_p > ham_p:
-			clf_class[i] = 1
-			if test_class[i] == 1:
-				cnt_true_spam += 1
+	spam_p = array(test_vec)*array(spam_lh) + log(p_abusive)
+	ham_p = array(test_vec)*array(ham_lh) + log(p_abusive)
 
-	clf_precision = float(cnt_true_spam)/clf_class.count(1)
-	clf_recall = float(cnt_true_spam)/test_class.count(1)
+        clf_class = (spam_p > ham_p).astype(int)
+#	for i in xrange(len(test_class)):
+#		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
+#		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
+#		
+#		if spam_p > ham_p:
+#			clf_class[i] = 1
+#			if test_class[i] == 1:
+#				cnt_true_spam += 1
+        cnt_true_spam = ((array(test_class) == clf_class).astype(int)).sum()
+	clf_precision = float(cnt_true_spam)/clf_class.sum()
+	clf_recall = float(cnt_true_spam)/array(test_class).sum()
         f_score = 2*clf_precision*clf_recall/(clf_precision+clf_recall)
 
 	print 'precision = ', clf_precision
