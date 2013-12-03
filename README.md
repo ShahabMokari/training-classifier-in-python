@@ -32,7 +32,9 @@ Numpy http://www.numpy.org/
 
 6. Evaluating the classifier 
 
-7. Checking results and imporve accuaracy and running speed
+7. Using Adaboost method to improve the accuaracy
+
+7. Checking results and improve the speed using Numpy & Scipy
 
   1). more datasets
   2). reduce demonsionality
