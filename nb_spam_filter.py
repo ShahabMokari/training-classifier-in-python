@@ -101,10 +101,9 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	'''
 	classify the test files using the classifier
 	'''
-	spam_p = array(test_vec)*array(spam_lh) + log(p_abusive)
-	ham_p = array(test_vec)*array(ham_lh) + log(p_abusive)
-
-        clf_class = (spam_p > ham_p).astype(int)
+	clf_diff = array([i*(spam_lh-ham_lh)+log(p_abusive)-log(1-p_abusive) for i in test_vec])
+	clf_class = (clf_class > 0).astype(int)
+	
 #	for i in xrange(len(test_class)):
 #		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
 #		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
@@ -113,7 +112,7 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 #			clf_class[i] = 1
 #			if test_class[i] == 1:
 #				cnt_true_spam += 1
-        cnt_true_spam = ((array(test_class) == clf_class).astype(int)).sum()
+        cnt_true_spam = (test_class == clf_class).astype(int)).sum()
 	clf_precision = float(cnt_true_spam)/clf_class.sum()
 	clf_recall = float(cnt_true_spam)/array(test_class).sum()
         f_score = 2*clf_precision*clf_recall/(clf_precision+clf_recall)
@@ -167,7 +166,7 @@ def test_NB(ds_name='enron1'):
         
 	p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
-	classify_NB(updated_test_vec, test_class, spam_vec, ham_vec, p_abusive)
+	classify_NB(array(updated_test_vec), array(test_class), array(spam_vec), array(ham_vec), p_abusive)
         print 'feature_lose = ', 1 - float(len(vocab_list))/len(set(vocab_list+test_vocab_list))	
 	print time() - start, 'seconds'
 
