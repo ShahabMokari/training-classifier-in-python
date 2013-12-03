@@ -87,8 +87,8 @@ def train_NB(train_vec, train_spam_div):
 	training naive bayes clssifier, get the vec parameters
 	'''
 
-	spam_num = train_vec[:train_spam_div].sum(axis=0) + ones(len(train_vec[0]))*train_spam_div
-	ham_num = train_vec[train_spam_div:].sum(axis=0) + ones(len(train_vec[0]))*(len(train_vec)-train_spam_div)
+	spam_num = train_vec[:train_spam_div].sum(axis=0) + train_spam_div
+	ham_num = train_vec[train_spam_div:].sum(axis=0) + (len(train_vec)-train_spam_div)
 
 	spam_denom = spam_num.sum() + len(train_vec[0])
 	ham_denom = ham_num.sum() + len(train_vec[0])
@@ -101,8 +101,8 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	'''
 	classify the test files using the classifier
 	'''
-	clf_diff = array([i*(spam_lh-ham_lh)+log(p_abusive)-log(1-p_abusive) for i in test_vec])
-	clf_class = (clf_class > 0).astype(int)
+	clf_diff = array([((i*spam_lh).sum()+log(p_abusive)- (i*ham_lh).sum()-log(1-p_abusive)) for i in test_vec])
+	clf_class = (clf_diff > 0).astype(int)
 	
 #	for i in xrange(len(test_class)):
 #		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
@@ -112,9 +112,9 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 #			clf_class[i] = 1
 #			if test_class[i] == 1:
 #				cnt_true_spam += 1
-        cnt_true_spam = (test_class == clf_class).astype(int)).sum()
+        cnt_true_spam = (clf_class*test_class).sum()
 	clf_precision = float(cnt_true_spam)/clf_class.sum()
-	clf_recall = float(cnt_true_spam)/array(test_class).sum()
+	clf_recall = float(cnt_true_spam)/test_class.sum()
         f_score = 2*clf_precision*clf_recall/(clf_precision+clf_recall)
 
 	print 'precision = ', clf_precision
@@ -162,7 +162,7 @@ def test_NB(ds_name='enron1'):
 
 	updated_test_vec, test_class = get_files_vec(updated_vocab_list, array(test_set))
 
-	spam_vec, ham_vec = train_NB(array(updated_train_vec), train_spam_div)
+	spam_vec, ham_vec = train_NB(array(updated_train_vec), array(train_spam_div))
         
 	p_abusive = float(train_spam_div)/(train_spam_div+train_ham_div)
 
