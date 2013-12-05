@@ -62,8 +62,8 @@ def get_feature_dict(words_list):
         '''
 	draft vocabulary dict.
 	'''
-        return list(set([w for words in words_list for w in set(words)]))
-#	return [i for i in Counter((w for words in words_list for w in words))]
+#        return list(set([w for words in words_list for w in set(words)]))
+	return [i for i in Counter((w for words in words_list for w in words))]
 
 
 # create vector for each file in these datasets
