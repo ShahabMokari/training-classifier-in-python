@@ -95,16 +95,18 @@ def classify_SVM(clf, test_vec, test_class):
 	'''
 	classify the test files using the classifier
 	'''
-	cnt_true_spam = 0
-	clf_class = [0]*len(test_class)
-	for i in xrange(len(test_class)):
-		if clf.predict(test_vec[i]) == 1:
-			clf_class[i] = 1
-			if test_class[i] == 1:
-				cnt_true_spam += 1
+#	cnt_true_spam = 0
+#	clf_class = [0]*len(test_class)
+#	for i in xrange(len(test_class)):
+#		if clf.predict(test_vec[i]) == 1:
+#			clf_class[i] = 1
+#			if test_class[i] == 1:
+#				cnt_true_spam += 1
 
-	clf_precision = float(cnt_true_spam)/clf_class.count(1)
-	clf_recall = float(cnt_true_spam)/test_class.count(1)
+        clf_class = array([clf.predict(i) for i in test_vec])
+	cnt_true_spam = (clf_class*test_class).sum()
+	clf_precision = float(cnt_true_spam)/clf_class.sum()
+	clf_recall = float(cnt_true_spam)/test_class.sum()
         f_score = 2*clf_precision*clf_recall/(clf_precision+clf_recall)
 
 	print 'precision = ', clf_precision
@@ -112,14 +114,14 @@ def classify_SVM(clf, test_vec, test_class):
 	print 'f_score = ', f_score
 
 # test the accuarcy of the classifer 
-def test_SVM():
+def test_SVM(dataset):
 	'''
 	test SVM
 	'''
 
 	start = time()
 	ratio = 0.7
-	spam, ham = get_words_list()
+	spam, ham = get_words_list(dataset)
 	random.shuffle(spam)
 	random.shuffle(ham)
 
@@ -152,10 +154,12 @@ def test_SVM():
 
 	clf= train_SVM(updated_train_vec, train_class)
         
-	classify_SVM(clf, updated_test_vec, test_class)
+	classify_SVM(clf, array(updated_test_vec), array(test_class))
 	
 	print time() - start, 'seconds'
 
 if __name__ == '__main__':
-	cProfile.run('test_SVM()', 'svm_clf_log.pyprof')
+	enron_set = ['enron1', 'enron2', 'enron3', 'enron4', 'enron5','enron6']
+	if len(sys.argv) == 2 and sys.argv[1] in enron_set:
+		cProfile.run('test_SVM(sys.argv[1])', 'svm_clf.pyprof')
 
