@@ -104,14 +104,6 @@ def classify_NB(test_vec, test_class, spam_lh, ham_lh, p_abusive):
 	clf_diff = array([((i*spam_lh).sum()+log(p_abusive)- (i*ham_lh).sum()-log(1-p_abusive)) for i in test_vec])
 	clf_class = (clf_diff > 0).astype(int)
 	
-#	for i in xrange(len(test_class)):
-#		spam_p = sum(test_vec[i]*spam_lh) + log(p_abusive)
-#		ham_p = sum(test_vec[i]*ham_lh) + log(1-p_abusive)
-#		
-#		if spam_p > ham_p:
-#			clf_class[i] = 1
-#			if test_class[i] == 1:
-#				cnt_true_spam += 1
         cnt_true_spam = (clf_class*test_class).sum()
 	clf_precision = float(cnt_true_spam)/clf_class.sum()
 	clf_recall = float(cnt_true_spam)/test_class.sum()
