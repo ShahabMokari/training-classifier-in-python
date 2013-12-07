@@ -96,13 +96,6 @@ def classify_SVM(clf, test_vec, test_class):
 	'''
 	classify the test files using the classifier
 	'''
-#	cnt_true_spam = 0
-#	clf_class = [0]*len(test_class)
-#	for i in xrange(len(test_class)):
-#		if clf.predict(test_vec[i]) == 1:
-#			clf_class[i] = 1
-#			if test_class[i] == 1:
-#				cnt_true_spam += 1
 
         clf_class = array([clf.predict(i) for i in test_vec])
 	cnt_true_spam = (clf_class*test_class).sum()
