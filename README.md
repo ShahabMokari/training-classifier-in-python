@@ -20,11 +20,11 @@ Numpy http://www.numpy.org/
 
 ## Project Details
 
-1. Load enron emails corpus into memory
+1. Loading enron emails corpus into memory
 
-2. Tokenize files into word, and store them into lists
+2. Tokenizing files into word, and store them into lists
 
-3. Feature extracte 
+3. Feature extraction
 
 4. Feature selection based on the words from corpus
 
