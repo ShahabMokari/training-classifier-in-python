@@ -28,7 +28,7 @@ Numpy http://www.numpy.org/
 
 4. Feature selection based on the words from corpus
 
-5. Training classifiers with Naive Bayes and SVM algorithm
+5. Training classifiers with Naive Bayes, SVM and AdaBoosting algorithms
 
 6. Evaluating the classifier 
 
